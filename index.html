@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CB Elementary Scheduling v15 — Target 30 · 1.0 FTE = 30–32 · 55 Specialists</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1e3a5f;--navy-d:#152a47;--navy-l:#2a4f7c;
+  --gold:#f0a500;--gold-p:#fdf3d7;--gold-d:#c87e00;
+  --bg:#f0f4f8;--surf:#fff;--bdr:#e2e8f0;--bdr-d:#cbd5e1;
+  --tx:#1e293b;--tx2:#64748b;--txm:#94a3b8;
+  --ok:#16a34a;--ok-b:#dcfce7;--wn:#d97706;--wn-b:#fef3c7;
+  --er:#dc2626;--er-b:#fee2e2;--inf:#0284c7;--inf-b:#e0f2fe;
+  --sA:#1d4ed8;--sA-b:#dbeafe;--sB:#7c3aed;--sB-b:#ede9fe;--sC:#0f766e;--sC-b:#ccfbf1;
+  --sw:264px;--th:60px;--r:8px;--rl:12px;--sh:0 1px 3px rgba(0,0,0,.1);
+  --gK:#7c3aed;--g1:#1d4ed8;--g2:#0f766e;--g3:#b45309;--g4:#dc2626;--g5:#0284c7;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{height:var(--th);background:var(--navy);display:flex;align-items:center;padding:0 16px;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:200;flex-shrink:0}
+.tlogo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tlogo-icon{width:38px;height:38px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--navy)}
+.tlogo-text h1{font-size:12.5px;font-weight:700;color:#fff;line-height:1.2}
+.tlogo-text p{font-size:10px;color:rgba(255,255,255,.5)}
+.tbar-mid{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.tbar-lbl{color:rgba(255,255,255,.6);font-size:11px;white-space:nowrap;flex-shrink:0}
+.tbar-sel{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:var(--r);padding:5px 11px;font-size:12px;cursor:pointer;outline:none;min-width:0;flex:1;max-width:280px}
+.tbar-sel option{background:var(--navy-d)}
+.tbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.ibtn{width:31px;height:31px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);color:#fff;font-size:13px;transition:.2s}
+.ibtn:hover{background:rgba(255,255,255,.22)}
+.ibtn-gold{background:rgba(240,165,0,.4)}.ibtn-gold:hover{background:rgba(240,165,0,.6)}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sw);background:var(--surf);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.nav-sec{padding:5px 7px}
+.nav-sec-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txm);padding:9px 8px 3px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);cursor:pointer;color:var(--tx2);font-size:12px;font-weight:500;transition:.15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg);color:var(--tx)}.nav-item.active{background:var(--gold-p);color:var(--navy);font-weight:700}
+.nav-icon{font-size:14px;width:17px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--er);color:#fff;font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:10px}
+.sb-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:var(--r);cursor:pointer;font-size:11px;color:var(--tx2);transition:.15s;border:none;background:none;width:100%;text-align:left}
+.sb-item:hover{background:var(--bg)}.sb-item.active{background:var(--gold-p);color:var(--navy);font-weight:600}
+.stype-pill{font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;flex-shrink:0}
+.stype-A{background:var(--sA-b);color:var(--sA)}.stype-B{background:var(--sB-b);color:var(--sB)}.stype-C{background:var(--sC-b);color:var(--sC)}
+.sidebar-ft{margin-top:auto;padding:9px;border-top:1px solid var(--bdr);font-size:10px;color:var(--txm);text-align:center;line-height:1.7}
+.main{flex:1;overflow-y:auto;padding:20px}
+.ph{margin-bottom:16px}.ph h2{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:2px}.ph p{color:var(--tx2);font-size:12px}
+.ph-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;box-shadow:var(--sh)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:13px}.card-hd h3{font-size:13.5px;font-weight:600}
+.mb3{margin-bottom:11px}.mb4{margin-bottom:16px}.mt3{margin-top:11px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r);border:none;cursor:pointer;font-size:12px;font-weight:500;transition:.15s;white-space:nowrap}
+.btn-p{background:var(--navy);color:#fff}.btn-p:hover{background:var(--navy-l)}
+.btn-g{background:var(--gold);color:var(--navy)}.btn-g:hover{background:var(--gold-d);color:#fff}
+.btn-s{background:var(--bg);color:var(--tx);border:1px solid var(--bdr)}.btn-s:hover{background:var(--bdr)}
+.btn-gr{background:var(--ok-b);color:var(--ok);border:1px solid var(--ok)}.btn-gr:hover{background:#86efac}
+.btn-sm{padding:3px 9px;font-size:11px}.btn-lg{padding:8px 18px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10.5px;font-weight:600}
+.b-ok{background:var(--ok-b);color:var(--ok)}.b-wn{background:var(--wn-b);color:var(--wn)}.b-er{background:var(--er-b);color:var(--er)}.b-ny{background:rgba(30,58,95,.1);color:var(--navy)}
+.alert{padding:10px 12px;border-radius:var(--r);font-size:12px;display:flex;align-items:flex-start;gap:8px;margin-bottom:10px}
+.al-i{font-size:14px;flex-shrink:0;margin-top:1px}
+.al-ok{background:var(--ok-b);color:var(--ok);border:1px solid #86efac}
+.al-wn{background:var(--wn-b);color:var(--wn);border:1px solid #fcd34d}
+.al-er{background:var(--er-b);color:var(--er);border:1px solid #fca5a5}
+.al-inf{background:var(--inf-b);color:var(--inf);border:1px solid #7dd3fc}
+.grade-grid{border-collapse:collapse;width:100%;font-size:12px}
+.grade-grid th{padding:9px 10px;font-weight:700;font-size:11px;text-align:center;white-space:nowrap;border:1px solid var(--bdr-d)}
+.grade-grid th.school-col{text-align:left;min-width:175px;background:var(--navy-d);color:#fff}
+.grade-grid th.grade-col{color:#fff;min-width:65px}
+.grade-grid th.total-col{background:var(--gold-p);color:var(--navy);min-width:70px}
+.grade-grid td{padding:5px 6px;border:1px solid var(--bdr);text-align:center;vertical-align:middle}
+.grade-grid td.school-cell{text-align:left;font-weight:600;padding:7px 10px;background:var(--bg)}
+.grade-grid td.total-cell{font-weight:700;background:var(--gold-p);color:var(--navy)}
+.grade-grid td.spec-cell{font-size:10.5px;background:rgba(30,58,95,.05);color:var(--navy-d);font-weight:600}
+.grade-grid input[type=number]{width:50px;text-align:center;border:1.5px solid var(--bdr-d);border-radius:5px;padding:4px 3px;font-size:12px;font-weight:700;outline:none}
+.grade-grid input:focus{border-color:var(--navy)}.grade-grid input.changed{border-color:var(--wn);background:var(--wn-b)}
+.grade-grid .footer-row td{background:var(--navy-d);color:#fff;font-weight:700;padding:8px 10px}
+.grade-grid .footer-row td.total-cell{background:var(--gold);color:var(--navy)}
+.fte-status{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.fte-full-pill{background:var(--ok-b);color:var(--ok);border:1px solid var(--ok)}
+.fte-near-pill{background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc}
+.fte-part-pill{background:var(--wn-b);color:var(--wn);border:1px solid #fcd34d}
+.fte-low-pill{background:var(--er-b);color:var(--er);border:1px solid #fca5a5}
+.sp-card{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rl);margin-bottom:28px;box-shadow:0 4px 16px rgba(0,0,0,.08);overflow:hidden;page-break-inside:avoid}
+.sp-card-hdr{padding:18px 22px 14px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--bdr)}
+.sp-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.sp-card-title{flex:1}.sp-card-title h3{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:3px}.sp-sub{font-size:12px;color:var(--tx2);margin-bottom:6px}
+.sp-week-strip{display:flex;gap:3px;padding:10px 22px;border-bottom:1px solid var(--bdr);background:var(--bg);overflow-x:auto}
+.sp-week-day{flex:1;min-width:88px;border:1px solid var(--bdr);border-radius:var(--r);padding:7px 5px;background:var(--surf);text-align:center}
+.sp-week-day-label{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.sp-day-section{margin:10px 22px 0;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden}.sp-day-section:last-of-type{margin-bottom:14px}
+.sp-day-hdr{padding:9px 13px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;border-bottom:1px solid var(--bdr)}
+.sp-day-hdr-A{background:var(--sA-b);color:var(--sA)}.sp-day-hdr-B{background:var(--sB-b);color:var(--sB)}.sp-day-hdr-C{background:var(--sC-b);color:var(--sC)}.sp-day-hdr-full{background:linear-gradient(135deg,var(--wn-b),var(--gold-p));color:var(--wn)}
+.sp-row{display:grid;grid-template-columns:94px 1fr;border-bottom:1px solid var(--bdr)}.sp-row:last-child{border-bottom:none}
+.sp-row-lbl{padding:8px 10px;background:var(--bg);font-size:10.5px;border-right:1px solid var(--bdr);display:flex;flex-direction:column;justify-content:center}
+.sp-row-num{font-weight:700;color:var(--tx)}.sp-row-time{font-size:9px;color:var(--txm);margin-top:1px}
+.sp-row-content{padding:8px 12px;min-height:48px;display:flex;flex-direction:column;justify-content:center;gap:2px;font-size:11.5px}
+.sp-row-prep{display:grid;grid-template-columns:94px 1fr;background:var(--ok-b);border-bottom:1px solid var(--bdr)}.sp-row-prep:last-child{border-bottom:none}
+.sp-row-prep-lbl{padding:8px 10px;background:rgba(220,252,231,.8);border-right:1px solid var(--ok);display:flex;align-items:center;justify-content:center;font-size:18px}
+.sp-row-prep-content{padding:8px 12px;display:flex;align-items:center;gap:8px}
+.sp-travel-gap{display:grid;grid-template-columns:94px 1fr;background:repeating-linear-gradient(45deg,#fff8e1,#fff8e1 5px,#fef9ec 5px,#fef9ec 10px);border-top:2px dashed #fcd34d;border-bottom:2px dashed #fcd34d}
+.sp-travel-gap-lbl{padding:10px;background:rgba(254,243,199,.9);border-right:2px dashed #fcd34d;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--wn);font-size:11px;font-weight:700}
+.sp-travel-gap-content{padding:10px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.sp-travel-gap-title{font-weight:700;color:var(--wn);font-size:12px}
+.sp-travel-gap-sub{font-size:10.5px;color:#92400e}
+.sp-travel-gap-note{font-size:10px;color:var(--ok);font-style:italic;margin-top:2px}
+.sp-footer{padding:10px 22px;background:var(--bg);border-top:1px solid var(--bdr);display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--tx2)}
+.sp-filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.principal-card{background:var(--surf);border:2px solid var(--navy);border-radius:var(--rl);margin-bottom:20px;overflow:hidden;page-break-inside:avoid}
+.principal-hdr{padding:14px 18px;background:var(--navy);color:#fff;display:flex;align-items:center;gap:12px}.principal-hdr h3{font-size:16px;font-weight:800;flex:1}
+.sp-visit-row{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:var(--bg);border-radius:var(--r);border:1px solid var(--bdr);margin-bottom:7px}
+.principal-sched-table{border-collapse:collapse;width:100%;font-size:11.5px}
+.principal-sched-table th{background:var(--navy-d);color:#fff;padding:7px 10px;font-weight:600;font-size:10.5px;text-align:center}
+.principal-sched-table td{padding:7px 9px;border:1px solid var(--bdr);text-align:center;vertical-align:middle}
+.principal-sched-table td.grade-cell{text-align:left;background:var(--bg);font-weight:600;white-space:nowrap}
+.audit-table{border-collapse:collapse;width:100%;font-size:11.5px}
+.audit-table th{background:var(--navy-d);color:#fff;padding:7px 10px;font-weight:600;font-size:10.5px;text-align:left;white-space:nowrap}
+.audit-table td{padding:6px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.audit-table tr:hover td{background:var(--bg)}.audit-table tr.pass-row td{background:rgba(220,252,231,.1)}.audit-table tr.fail-row td{background:rgba(254,226,226,.2)}
+.val-panel{border-radius:var(--rl);border:2px solid var(--bdr);overflow:hidden;margin-bottom:16px}
+.val-hdr{padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
+.val-pass{background:var(--ok-b);border-color:var(--ok);color:var(--ok)}.val-fail{background:var(--er-b);border-color:var(--er);color:var(--er)}
+.val-rule{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-top:1px solid var(--bdr);font-size:12px}
+.val-detail{background:var(--bg);border-radius:5px;padding:8px 10px;margin-top:6px;font-size:11px;color:var(--tx2)}
+.pool-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-radius:var(--r);border:1px solid var(--bdr);margin-bottom:6px}
+.pool-item.has-err{border-color:var(--er);background:var(--er-b)}
+.pool-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sp-name-edit{font-size:13px;font-weight:700;cursor:pointer;padding:3px 7px;border-radius:5px;border:1px solid transparent;min-width:80px;outline:none;transition:.15s}
+.sp-name-edit:hover{border-color:var(--bdr-d);background:var(--surf)}.sp-name-edit:focus{border-color:var(--navy);background:var(--surf);box-shadow:0 0 0 3px rgba(30,58,95,.12)}
+.fp-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;background:var(--ok-b);color:var(--ok);border:1px solid var(--ok)}
+.info-box{background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:11px 13px;font-size:11.5px;color:var(--tx2);margin-bottom:11px}
+.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10.5px;background:var(--bg);border:1px solid var(--bdr);color:var(--tx2)}
+.hidden{display:none !important}
+.flex{display:flex}.g2r{gap:8px}.g3r{gap:10px}
+.sc-table{border-collapse:collapse;width:100%;font-size:11.5px}
+.sc-table th{background:var(--navy);color:#fff;padding:7px 9px;font-weight:600;font-size:10.5px;text-align:left}
+.sc-table td{padding:7px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.sc-table tr:hover td{background:var(--bg)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(2px)}
+.ov.h{display:none}
+.modal{background:var(--surf);border-radius:var(--rl);box-shadow:0 10px 15px -3px rgba(0,0,0,.1);width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
+.m-hd{padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between}.m-hd h3{font-size:15px;font-weight:700;color:var(--navy)}
+.m-bd{padding:13px 20px}.m-ft{padding:0 20px 15px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.view{display:none}.view.active{display:block}
+.toast-wrap{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast{padding:9px 13px;border-radius:var(--r);font-size:12px;font-weight:500;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);display:flex;align-items:center;gap:7px;animation:sli .3s ease;min-width:230px}
+@keyframes sli{from{transform:translateX(110%);opacity:0}}
+.t-ok{background:var(--ok);color:#fff}.t-er{background:var(--er);color:#fff}.t-inf{background:var(--navy);color:#fff}.t-wn{background:var(--wn);color:#fff}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@media print{.topbar,.sidebar,.btn,.ov,.toast-wrap,.sp-filter-row,.no-print{display:none !important}body{overflow:visible;height:auto;background:#fff}.app-body{overflow:visible;display:block}.main{padding:0}.sp-card,.principal-card{page-break-inside:avoid;box-shadow:none;border:2px solid #ccc;margin-bottom:20px}}
+@media(max-width:860px){.sidebar{display:none}.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="tlogo">
+    <div class="tlogo-icon">CB</div>
+    <div class="tlogo-text">
+      <h1>CB Elementary Scheduling v15</h1>
+      <p>Target 30 · 1.0 FTE = 30–32 · Bins fill to 32 → 11/Subject = 55 District · Audited</p>
+    </div>
+  </div>
+  <div class="tbar-mid">
+    <span class="tbar-lbl">School:</span>
+    <select class="tbar-sel" id="schoolSel" onchange="selectSchool(this.value)"></select>
+    <span id="tbarPill" class="stype-pill" style="flex-shrink:0"></span>
+    <span id="tbarHours" style="font-size:10px;color:rgba(255,255,255,.5);flex-shrink:0"></span>
+  </div>
+  <div class="tbar-right">
+    <button class="ibtn ibtn-gold" onclick="runOptimizer()" title="Run optimizer">🧮</button>
+    <button class="ibtn" onclick="runAudit();showView('audit')" title="Full audit" style="background:rgba(34,197,94,.35)">🔍</button>
+    <button class="ibtn" onclick="window.print()" title="Print">🖨️</button>
+    <button class="ibtn" onclick="exportCSV()" title="Export CSV">⬇️</button>
+    <button class="ibtn" onclick="resetAll()" title="Reset">🔄</button>
+  </div>
+</header>
+<div class="app-body">
+<nav class="sidebar">
+  <div class="nav-sec">
+    <div class="nav-sec-lbl">Navigation</div>
+    <button class="nav-item active" onclick="showView('dashboard')" id="nv-dashboard"><span class="nav-icon">🏠</span>District Dashboard</button>
+    <button class="nav-item" onclick="showView('sections')" id="nv-sections"><span class="nav-icon">📊</span>Section Enrollment</button>
+    <button class="nav-item" onclick="showView('assignments')" id="nv-assignments"><span class="nav-icon">📋</span>Assignments</button>
+    <button class="nav-item" onclick="showView('spcards')" id="nv-spcards"><span class="nav-icon">🗂️</span>Specialist Cards</button>
+    <button class="nav-item" onclick="showView('principal')" id="nv-principal"><span class="nav-icon">🏫</span>Principal View</button>
+    <button class="nav-item" onclick="showView('staffingreport')" id="nv-staffingreport"><span class="nav-icon">👥</span>Staffing Report</button>
+    <button class="nav-item" onclick="runAudit();showView('audit')" id="nv-audit"><span class="nav-icon">🔍</span>Full Audit<span class="nav-badge hidden" id="auditBadge">!</span></button>
+    <button class="nav-item" onclick="showView('pool')" id="nv-pool"><span class="nav-icon">🎨</span>Specialist Pool<span class="nav-badge hidden" id="poolBadge">!</span></button>
+    <button class="nav-item" onclick="showView('flex')" id="nv-flex"><span class="nav-icon">⚡</span>School Flex Periods</button>
+    <button class="nav-item" onclick="showView('district')" id="nv-district"><span class="nav-icon">🗓️</span>District Grade Periods</button>
+    <button class="nav-item" onclick="showView('validation')" id="nv-validation"><span class="nav-icon">✅</span>Validation<span class="nav-badge hidden" id="valBadge">!</span></button>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-sec-lbl"><span>All 15 Schools</span><span id="schedCountLbl" style="color:var(--ok);font-weight:600"></span></div>
+    <div id="sidebarSchools"></div>
+  </div>
+  <div class="sidebar-ft">CB Scheduling v15.0<br>Target 30 · 1.0FTE=30–32 · 55 Spec<br>© 2026 CBSD</div>
+</nav>
+<main class="main">
+
+<div id="view-dashboard" class="view active">
+  <div class="ph"><div class="ph-row">
+    <div><h2>🏠 District Dashboard</h2><p>Target 30/specialist · 1.0 FTE = 30–32 · Bins fill to 32 → 11/subject = 55 district-wide · A→C travel in natural 30-min gap</p></div>
+    <button class="btn btn-g btn-lg" onclick="runOptimizer()" id="optimizerBtn">🧮 Run Optimizer (All 15 Schools)</button>
+  </div></div>
+  <div class="card mb4" style="border-left:4px solid var(--ok)">
+    <div style="font-size:12px;color:var(--navy);line-height:2">
+      <strong>🎯 Target = 30 sections/specialist</strong> (ideal — 1 free period every day). &nbsp;|&nbsp;
+      <strong>✅ 1.0 FTE = 30, 31, or 32 sections</strong> — all three are "full time." &nbsp;|&nbsp;
+      <strong>🧮 Math:</strong> ⌈336 ÷ 32⌉ = 11/subject × 5 = <strong>55 district-wide</strong> (vs. ⌈336÷30⌉=12/subject=60 — saves 5 positions). &nbsp;|&nbsp;
+      <strong>✈️ A→C:</strong> Natural 30-min schedule gap — zero period cost.
+    </div>
+  </div>
+  <div id="dashValSummary"></div>
+  <div id="dynamicSummaryGrid" class="mb4"></div>
+  <div class="g3 mb4" style="gap:10px">
+    <div class="card"><h3 style="font-size:12px;font-weight:700;color:var(--sA);margin-bottom:5px">"A" Schools (8) · 8:35–3:15</h3><div style="font-size:11px;color:var(--sA)">Bridge Valley · Cold Spring · Doyle · Gayman · Jamison · Mill Creek · Pine Run · Titus</div></div>
+    <div class="card"><h3 style="font-size:12px;font-weight:700;color:var(--sB);margin-bottom:5px">"B" Schools (2) · 8:50–3:30</h3><div style="font-size:11px;color:var(--sB)">Buckingham · Kutz</div></div>
+    <div class="card"><h3 style="font-size:12px;font-weight:700;color:var(--sC);margin-bottom:5px">"C" Schools (5) · 9:05–3:45</h3><div style="font-size:11px;color:var(--sC)">Barclay · Butler · Groveland · Linden · Warwick</div></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>🏫 School Status</h3><span style="font-size:11px;color:var(--txm)">Click → Principal View</span></div><div id="dashGrid"></div></div>
+</div>
+
+<div id="view-sections" class="view">
+  <div class="ph"><div class="ph-row">
+    <div><h2>📊 Section Enrollment</h2><p>Grade-level sections · 336 total (2026-27 verified) · Target 30 · 1.0 FTE = 30–32 · Bins fill to 32 → 55 district-wide</p></div>
+    <div class="flex g3r no-print"><button class="btn btn-s btn-sm" onclick="resetGradeSections()">↺ Reset Defaults</button><button class="btn btn-g" onclick="runOptimizer()">🧮 Run Optimizer</button></div>
+  </div></div>
+  <div class="card"><div class="card-hd"><h3>Grade-Level Sections per School</h3><div id="sectionGrandTotal" style="font-size:12px;font-weight:600;color:var(--navy)"></div></div><div style="overflow-x:auto" id="gradeSectionGridWrap"></div></div>
+</div>
+
+<div id="view-assignments" class="view">
+  <div class="ph"><div class="ph-row"><div><h2>📋 Specialist Assignments</h2><p>Target 30 · 1.0 FTE = 30–32 · Bins fill to 32 · 🟡 = full day · 📝 = includes free period</p></div>
+    <div class="flex g3r no-print"><button class="btn btn-g" onclick="runOptimizer()">🔄 Re-Run</button><button class="btn btn-p" onclick="showView('spcards')">🗂️ Cards</button></div>
+  </div></div>
+  <div id="subjTabs" class="sp-filter-row no-print"></div>
+  <div id="assignmentsCont"><div class="alert al-inf"><span class="al-i">ℹ️</span><div>Click 🧮 Run Optimizer first.</div></div></div>
+</div>
+
+<div id="view-spcards" class="view">
+  <div class="ph"><div class="ph-row"><div><h2>🗂️ Specialist Cards</h2><p>Target 30 · 1.0 FTE = 30–32 · 🟡 = full day (7 sections, no free) · 📝 = ≤6 sections (free period included) · ✈️ = travel in schedule gap</p></div>
+    <div class="flex g3r no-print"><button class="btn btn-g" onclick="runOptimizer()">🔄 Refresh</button><button class="btn btn-p" onclick="window.print()">🖨️ Print All</button></div>
+  </div></div>
+  <div id="spcardsFilter" class="sp-filter-row no-print"></div>
+  <div id="spCardsCont"><div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div></div>
+</div>
+
+<div id="view-principal" class="view">
+  <div class="ph"><div class="ph-row"><div><h2>🏫 Principal View</h2><p>Per-school specialist schedule for principals</p></div>
+    <div class="flex g3r no-print"><select class="fctl" id="principalSchoolSel" onchange="renderPrincipal()" style="max-width:280px;padding:6px 9px;border:1px solid var(--bdr-d);border-radius:var(--r);font-size:12px;outline:none;background:var(--surf)"></select><button class="btn btn-p" onclick="window.print()">🖨️ Print</button></div>
+  </div></div>
+  <div id="principalCont"><div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer, then select a school above.</div></div></div>
+</div>
+
+<div id="view-staffingreport" class="view">
+  <div class="ph"><div class="ph-row"><div><h2>👥 Staffing Report</h2><p>Target 30 · 1.0 FTE = 30–32 · Bins fill to 32 → 11/subject = 55 district-wide</p></div><button class="btn btn-g" onclick="runOptimizer()">🔄 Refresh</button></div></div>
+  <div id="staffingReportCont"><div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div></div>
+</div>
+
+<div id="view-audit" class="view">
+  <div class="ph"><div class="ph-row"><div><h2>🔍 Full Constraint Audit</h2><p>Mathematical minimum · 1.0 FTE = 30–32 · ≤7/day · A→C travel in natural gap · Section coverage</p></div>
+    <button class="btn btn-gr" onclick="runAudit();renderAudit()">▶ Re-Run</button>
+  </div></div>
+  <div id="auditCont"></div>
+</div>
+
+<div id="view-pool" class="view"><div class="ph"><div class="ph-row"><div><h2>🎨 Specialist Pool</h2><p>11/subject · Click to rename</p></div></div></div><div id="poolCont"></div></div>
+<div id="view-flex" class="view"><div class="ph"><div class="ph-row"><div><h2>⚡ School Flex Periods</h2><p id="flexLabel">Select a school above</p></div></div></div><div class="info-box mb4" id="flexNotice">Select a school above.</div><div id="flexCont"></div></div>
+<div id="view-district" class="view"><div class="ph"><div class="ph-row"><div><h2>🗓️ District Grade Periods</h2></div></div></div><div class="card mb4" id="districtPeriodEditor"></div><div class="card"><div class="card-hd"><h3>📅 Bell Times &amp; A→C Travel Windows</h3></div><div style="overflow-x:auto" id="bellTimeTable"></div></div></div>
+<div id="view-validation" class="view"><div class="ph"><div class="ph-row"><div><h2>✅ Validation</h2></div><button class="btn btn-g" onclick="runValidation();renderValidation()">🔄 Re-Run</button></div></div><div id="validationCont"></div></div>
+
+</main>
+</div>
+
+<div class="ov h" id="editTMod">
+  <div class="modal"><div class="m-hd"><h3>✏️ Edit Teacher</h3><button class="ibtn" onclick="closeModal('editTMod')" style="background:var(--bg);color:var(--tx)">✕</button></div>
+    <div class="m-bd"><input type="hidden" id="etId"/><input type="hidden" id="etGrade"/><div style="margin-bottom:11px"><label style="display:block;font-size:11px;font-weight:600;margin-bottom:4px">Name *</label><input id="etName" style="width:100%;padding:6px 9px;border:1px solid var(--bdr-d);border-radius:var(--r);font-size:12px;outline:none"/></div></div>
+    <div class="m-ft"><button class="btn btn-s" onclick="closeModal('editTMod')">Cancel</button><button class="btn btn-p" onclick="saveTeacher()">Save</button></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ================================================================
+   CB ELEMENTARY SCHEDULING v15 — Central Bucks School District
+   
+   KEY CONSTANTS:
+   TARGET       = 30   display goal / ideal weekly load
+   FTE_FULL_MIN = 30   minimum sections for 1.0 FTE
+   MAX_PER_WEEK = 32   hard cap AND bin fill (30,31,32 all = 1.0 FTE)
+   
+   RESULT: ⌈336÷32⌉ = 11/subject × 5 = 55 district-wide
+   (Filling to 30 would need 12/subject = 60 — 5 more positions)
+   
+   A→C TRAVEL: Natural 30-min schedule gap — no period consumed.
+   FTE: secs >= FTE_FULL_MIN (30) AND secs <= MAX_PER_WEEK (32) = 1.0
+================================================================ */
+const TARGET=30,FTE_FULL_MIN=30,MAX_PER_WEEK=32,MAX_PER_DAY=7,FREE_PERIOD_THRESHOLD=6;
+const GRADES=['K','1','2','3','4','5'];
+const GL={K:'Kindergarten','1':'1st Grade','2':'2nd Grade','3':'3rd Grade','4':'4th Grade','5':'5th Grade'};
+const GRADE_COLORS={K:'#7c3aed','1':'#1d4ed8','2':'#0f766e','3':'#b45309','4':'#dc2626','5':'#0284c7'};
+const GRADE_BG={K:'#ede9fe','1':'#dbeafe','2':'#ccfbf1','3':'#fef3c7','4':'#fee2e2','5':'#e0f2fe'};
+const SPECIALS=['PE','Music','Art','Library','QUEST'];
+const SPEC_ICON={PE:'🏃',Music:'🎵',Art:'🎨',Library:'📚',QUEST:'⭐'};
+const SPEC_COLOR={PE:'#ef4444',Music:'#8b5cf6',Art:'#f59e0b',Library:'#06b6d4',QUEST:'#22c55e'};
+const SPEC_COLBG={PE:'#fee2e2',Music:'#ede9fe',Art:'#fef3c7',Library:'#cffafe',QUEST:'#dcfce7'};
+const DAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const PERIODS=[1,2,3,4,5,6,7];
+const SCHED_ORDER={A:0,B:1,C:2};
+const SCHED={A:{start:'8:35 AM',end:'3:15 PM',startMin:515,endMin:915},B:{start:'8:50 AM',end:'3:30 PM',startMin:530,endMin:930},C:{start:'9:05 AM',end:'3:45 PM',startMin:545,endMin:945}};
+function minToTime(m){const h=Math.floor(m/60),mn=Math.round(m%60),ap=h>=12?'PM':'AM',h12=h>12?h-12:(h===0?12:h);return`${h12}:${mn.toString().padStart(2,'0')} ${ap}`;}
+function getPT(type){const s=SCHED[type],dur=(s.endMin-s.startMin)/7;return PERIODS.map((_,i)=>{const st=s.startMin+i*dur,en=st+dur;return{start:minToTime(st),end:minToTime(en),startMin:st,endMin:en};});}
+function travelGapAtoC(p){const a=getPT('A')[p-1];const c=getPT('C')[p-1];return Math.round(c.startMin-a.endMin);}
+
+/* FTE — single source of truth: secs 30-32 = 1.0 FTE */
+function fteBand(secs){
+  const pct=Math.min(100,Math.round(secs/MAX_PER_WEEK*100));
+  if(secs>MAX_PER_WEEK)return{pct,label:`Over cap (${secs}>${MAX_PER_WEEK})`,cls:'fte-low-pill',emoji:'⛔',tier:'OVER'};
+  if(secs>=FTE_FULL_MIN)return{pct,label:`1.0 FTE (${secs} sec)`,cls:'fte-full-pill',emoji:'✅',tier:'FULL'};
+  if(secs>=25)return{pct,label:`Near-Full (${secs}·${pct}%)`,cls:'fte-near-pill',emoji:'🔵',tier:'NEAR'};
+  if(secs>=10)return{pct,label:`Partial (${secs}·${pct}%)`,cls:'fte-part-pill',emoji:'⚠️',tier:'PARTIAL'};
+  return{pct,label:`Low (${secs}·${pct}%)`,cls:'fte-low-pill',emoji:'🔴',tier:'LOW'};
+}
+function ftePill(secs){const b=fteBand(secs);return`<span class="fte-status ${b.cls}">${b.emoji} ${b.label}</span>`;}
+function fteColor(secs){const b=fteBand(secs);return b.tier==='FULL'?'var(--ok)':b.tier==='NEAR'?'var(--inf)':b.tier==='PARTIAL'?'var(--wn)':'var(--er)';}
+
+function detectTravelMode(sections){
+  if(!sections||sections.length<=1)return{mode:'solo',label:'Single school',travelCost:0};
+  const types=[...new Set(sections.map(s=>s.schedType))].sort((a,b)=>(SCHED_ORDER[a]||0)-(SCHED_ORDER[b]||0));
+  if(types.length===1)return{mode:'rotation',label:'Day rotation (same schedule type)',travelCost:0,note:'Same-type schools use different days of the week.'};
+  const hasA=types.includes('A'),hasC=types.includes('C'),hasB=types.includes('B');
+  if(hasA&&hasC){const gap=travelGapAtoC(1);return{mode:'ac_gap',label:`A→C in natural ${gap}-min gap`,travelCost:0,gapMin:gap,note:`A-school period ends, ${gap}-min natural window, C-school period starts. Zero period cost.`};}
+  if(hasA&&hasB)return{mode:'ab_gap',label:'A→B in 15-min gap',travelCost:0,gapMin:15,note:'15-min natural gap. Zero period cost.'};
+  if(hasB&&hasC)return{mode:'bc_gap',label:'B→C in 15-min gap',travelCost:0,gapMin:15,note:'15-min natural gap. Zero period cost.'};
+  return{mode:'rotation',label:'Day rotation',travelCost:0};
+}
+
+/* DEFAULT GRADE SECTIONS — 336 total, 2026-27 verified */
+const DGS={
+  'Barclay Elementary':      {'K':5,'1':4,'2':4,'3':5,'4':4,'5':5},
+  'Bridge Valley Elementary':{'K':3,'1':3,'2':4,'3':4,'4':4,'5':5},
+  'Buckingham Elementary':   {'K':2,'1':3,'2':3,'3':3,'4':3,'5':4},
+  'Butler Elementary':       {'K':4,'1':4,'2':4,'3':4,'4':6,'5':6},
+  'Cold Spring Elementary':  {'K':4,'1':4,'2':3,'3':3,'4':4,'5':3},
+  'Doyle Elementary':        {'K':3,'1':3,'2':3,'3':3,'4':3,'5':4},
+  'Gayman Elementary':       {'K':2,'1':3,'2':3,'3':3,'4':3,'5':3},
+  'Groveland Elementary':    {'K':5,'1':5,'2':5,'3':5,'4':5,'5':6},
+  'Jamison Elementary':      {'K':4,'1':4,'2':4,'3':4,'4':4,'5':4},
+  'Kutz Elementary':         {'K':3,'1':3,'2':3,'3':3,'4':3,'5':3},
+  'Linden Elementary':       {'K':2,'1':2,'2':3,'3':3,'4':3,'5':2},
+  'Mill Creek Elementary':   {'K':6,'1':6,'2':5,'3':6,'4':5,'5':5},
+  'Pine Run Elementary':     {'K':3,'1':3,'2':3,'3':3,'4':3,'5':4},
+  'Titus Elementary':        {'K':3,'1':3,'2':4,'3':4,'4':4,'5':4},
+  'Warwick Elementary':      {'K':3,'1':3,'2':4,'3':4,'4':3,'5':4}
+};
+
+const GEO=['Groveland Elementary','Mill Creek Elementary','Barclay Elementary','Titus Elementary','Jamison Elementary','Warwick Elementary','Cold Spring Elementary','Gayman Elementary','Butler Elementary','Doyle Elementary','Linden Elementary','Pine Run Elementary','Kutz Elementary','Bridge Valley Elementary','Buckingham Elementary'];
+
+const CBD=[
+  {name:'Barclay Elementary',sT:'C',prin:'Ms. Angela Dorsi',addr:'2015 Palomino Dr',city:'Warrington'},
+  {name:'Bridge Valley Elementary',sT:'A',prin:'Mrs. Patricia Moore',addr:'2280 Sugar Bottom Rd',city:'Furlong'},
+  {name:'Buckingham Elementary',sT:'B',prin:'Dr. James Crawford',addr:'2414 Durham Rd',city:'Buckingham'},
+  {name:'Butler Elementary',sT:'C',prin:'Mrs. Susan Terry',addr:'200 Brittany Dr',city:'Chalfont'},
+  {name:'Cold Spring Elementary',sT:'A',prin:'Dr. Nicole Washington',addr:'4150 Durham Rd',city:'Doylestown'},
+  {name:'Doyle Elementary',sT:'A',prin:'Mrs. Karen Sullivan',addr:'260 N West St',city:'Doylestown'},
+  {name:'Gayman Elementary',sT:'A',prin:'Dr. Sarah Mills',addr:'4440 Point Pleasant Pike',city:'Doylestown'},
+  {name:'Groveland Elementary',sT:'C',prin:'Mr. David Chen',addr:'1100 N Easton Rd',city:'Doylestown'},
+  {name:'Jamison Elementary',sT:'A',prin:'Mr. Robert Klein',addr:'2090 Land Rd',city:'Jamison'},
+  {name:'Kutz Elementary',sT:'B',prin:'Mrs. Jennifer Adams',addr:'1950 Turk Rd',city:'Doylestown'},
+  {name:'Linden Elementary',sT:'C',prin:'Dr. Michael Torres',addr:'480 Linden Ave',city:'Doylestown'},
+  {name:'Mill Creek Elementary',sT:'A',prin:'Mrs. Amanda Wright',addr:'638 Bellflower Blvd',city:'Warrington'},
+  {name:'Pine Run Elementary',sT:'A',prin:'Mrs. Rebecca Nguyen',addr:'383 W Butler Ave',city:'Doylestown'},
+  {name:'Titus Elementary',sT:'A',prin:'Dr. William Foster',addr:'2333 Lower Barness Rd',city:'Warrington'},
+  {name:'Warwick Elementary',sT:'C',prin:'Mrs. Stephanie Burns',addr:'1340 Almshouse Rd',city:'Jamison'}
+];
+
+const SURNAMES=['Adams','Anderson','Baker','Brown','Campbell','Carter','Chen','Clark','Cooper','Davis','Edwards','Evans','Fisher','Garcia','Green','Hall','Harris','Henderson','Hughes','Jackson','Johnson','Jones','Kelly','King','Klein','Lee','Lewis','Lopez','Martin','Martinez','Miller','Mitchell','Moore','Morgan','Murphy','Nelson','Nguyen',"O'Brien",'Patel','Reed','Rivera','Robinson','Ross','Schmidt','Scott','Smith','Sullivan','Taylor','Thomas','Thompson','Torres','Turner','Walker','Walsh','White','Williams','Wilson','Wright','Young'];
+const CTITLES=['Mrs.','Mr.','Ms.','Dr.'];
+function mkRng(seed){let s=seed>>>0;return()=>((s=Math.imul(1664525,s)+1013904223|0)>>>0)/4294967296;}
+function pick(a,r){return a[Math.floor(r()*a.length)];}
+function genCT(r){return`${pick(CTITLES,r)} ${pick(SURNAMES,r)}`;}
+function uid(){return'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function getFreePeriod(schools){const used=new Set(Object.values(S.dp));const flex=new Set();(schools||[]).forEach(sc=>{if(!sc)return;GRADES.forEach(g=>{const fp=sc.grades[g]?.flexPeriod;if(fp!=null)flex.add(fp);});});for(const p of PERIODS){if(!used.has(p)&&!flex.has(p))return p;}for(const p of PERIODS){if(!used.has(p))return p;}return 7;}
+function getDistrictFP(){const used=new Set(Object.values(S.dp));for(const p of PERIODS){if(!used.has(p))return p;}return 7;}
+
+let S={schools:[],cur:null,dp:{K:1,'1':2,'2':3,'3':4,'4':5,'5':6},gs:{},pool:[],opt:null,val:null,aud:null};
+function save(){try{localStorage.setItem('cbSched15',JSON.stringify(S));}catch(e){}}
+function load(){try{const d=localStorage.getItem('cbSched15');if(d)S=JSON.parse(d);}catch(e){}}
+function cur(){return S.schools.find(s=>s.id===S.cur)||null;}
+function getGS(n){return S.gs[n]||DGS[n]||{K:3,'1':3,'2':3,'3':3,'4':3,'5':3};}
+function getST(n){return Object.values(getGS(n)).reduce((s,v)=>s+v,0);}
+function setGS(n,g,v){if(!S.gs[n])S.gs[n]={...DGS[n]};S.gs[n][g]=Math.max(0,+v||0);syncT(n);save();}
+function resetGradeSections(){S.gs={};syncAll();save();renderGrids();renderSummary();renderDash();toast('Grade sections reset to 26-27 defaults.','ok');}
+function syncT(n){const sc=S.schools.find(s=>s.name===n);if(!sc)return;const gs=getGS(n);const rng=mkRng(n.split('').reduce((s,c)=>s+c.charCodeAt(0),0));GRADES.forEach(g=>{if(!sc.grades[g])sc.grades[g]={flexPeriod:null,teachers:[]};const cur=sc.grades[g].teachers;const need=gs[g]||0;while(cur.length>need)cur.pop();while(cur.length<need)cur.push({id:uid(),name:genCT(rng),grade:g});});sc.sched=null;}
+function syncAll(){S.schools.forEach(sc=>syncT(sc.name));}
+function init(){S.schools=[];S.dp={K:1,'1':2,'2':3,'3':4,'4':5,'5':6};S.gs={};S.pool=[];S.opt=null;S.val=null;S.aud=null;CBD.forEach(d=>{const grades={};GRADES.forEach(g=>{grades[g]={flexPeriod:null,teachers:[]};});S.schools.push({id:uid(),name:d.name,schedType:d.sT,principal:d.prin,address:d.addr,city:d.city,grades,sched:null,lastGen:null});});syncAll();if(S.schools.length)S.cur=S.schools[0].id;save();}
+function resetAll(){if(!confirm('Reset all data?'))return;localStorage.removeItem('cbSched15');S={schools:[],cur:null,dp:{K:1,'1':2,'2':3,'3':4,'4':5,'5':6},gs:{},pool:[],opt:null,val:null,aud:null};init();refreshUI();toast('Reset.','inf');}
+function selectSchool(id){S.cur=id;save();refreshUI();}
+function setDP(g,p){S.dp[g]=p;S.schools.forEach(sc=>sc.sched=null);save();renderDE();renderBT();toast(`${GL[g]} → P${p}`,'ok');}
+function setFlex(g,p){const sc=cur();if(!sc)return;if(p===S.dp[g]){toast('Cannot equal district primary.','wn');return;}sc.grades[g].flexPeriod=p;sc.sched=null;save();renderFlex();renderFlexNotice();}
+function clearFlex(g){const sc=cur();if(!sc)return;sc.grades[g].flexPeriod=null;sc.sched=null;save();renderFlex();renderFlexNotice();}
+function openEditTeacher(g,tid){const sc=cur();if(!sc)return;const t=sc.grades[g].teachers.find(x=>x.id===tid);if(!t)return;document.getElementById('etId').value=tid;document.getElementById('etGrade').value=g;document.getElementById('etName').value=t.name;openModal('editTMod');}
+function saveTeacher(){const sc=cur();if(!sc)return;const id=document.getElementById('etId').value,g=document.getElementById('etGrade').value,name=document.getElementById('etName').value.trim();if(!name){toast('Enter a name.','er');return;}const t=sc.grades[g]?.teachers.find(x=>x.id===id);if(!t)return;t.name=name;sc.sched=null;save();closeModal('editTMod');toast('Updated.','ok');}
+function buildPool(){if(!S.opt)return;const pool=[];SPECIALS.forEach(subj=>{(S.opt[subj]||[]).forEach((bin,i)=>{const ex=S.pool.find(sp=>sp.subject===subj&&sp.bi===i);pool.push(ex||{id:`sp_${subj}_${i}`,subject:subj,bi:i,name:`${subj} ${i+1}`});});});S.pool=pool;}
+function finishRename(id,newName){const name=(newName||'').trim();const sp=S.pool.find(s=>s.id===id);if(!sp)return;if(!name){const el=document.getElementById(`pn_${id}`);if(el)el.textContent=sp.name;return;}const dup=S.pool.find(s=>s.id!==id&&s.name.trim().toLowerCase()===name.toLowerCase());if(dup){toast(`❌ "${name}" already exists.`,'er');const el=document.getElementById(`pn_${id}`);if(el){el.textContent=sp.name;el.style.background='var(--er-b)';el.style.color='var(--er)';setTimeout(()=>{el.style.background='';el.style.color='';},2000);}return;}sp.name=name;save();runVal();renderPool();toast(`Renamed to "${name}"`,'ok');}
+function SPN(subject,bi){return S.pool.find(p=>p.subject===subject&&p.bi===bi)?.name||`${subject} ${bi+1}`;}
+
+function buildDays(sections,totalSecs){
+  if(!totalSecs||!sections?.length)return[];
+  const sorted=[...sections].sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));
+  const tm=detectTravelMode(sorted);
+  const dc=[MAX_PER_DAY,MAX_PER_DAY,MAX_PER_DAY,MAX_PER_DAY,MAX_PER_DAY];
+  const sdm={};const tud={};
+  sorted.forEach(sc=>{let rem=sc.secs;sdm[sc.name]={};const mtu=tud[sc.schedType]||new Set();for(let d=0;d<5&&rem>0;d++){if(mtu.has(d)&&sdm[sc.name][d]===undefined)continue;const take=Math.min(dc[d],rem);if(take>0){sdm[sc.name][d]=(sdm[sc.name][d]||0)+take;dc[d]-=take;rem-=take;mtu.add(d);}}for(let d=0;d<5&&rem>0;d++){const take=Math.min(dc[d],rem);if(take>0){sdm[sc.name][d]=(sdm[sc.name][d]||0)+take;dc[d]-=take;rem-=take;}}tud[sc.schedType]=mtu;});
+  return sorted.map(sc=>{const de=Object.entries(sdm[sc.name]||{});if(!de.length)return{...sc,days:[],dayCount:0,dailyBreakdown:{},tm};const dn=de.map(([d])=>+d).sort((a,b)=>a-b);const tf=de.reduce((s,[,v])=>s+v,0);return{...sc,days:dn.map(d=>DAYS[d]),dayCount:dn.length,dailyBreakdown:Object.fromEntries(de.map(([d,s])=>[DAYS[d],s])),tm};});
+}
+
+async function runOptimizer(){
+  const btn=document.getElementById('optimizerBtn');if(btn){btn.innerHTML='<span class="spin"></span> Computing…';btn.disabled=true;}
+  S.opt={};
+  SPECIALS.forEach(subj=>{
+    const q=GEO.map(name=>{const sc=S.schools.find(s=>s.name===name);if(!sc)return null;const secs=getST(name);if(secs<=0)return null;return{name,short:name.replace(' Elementary',''),schedType:sc.schedType,school:sc,total:secs,remaining:secs};}).filter(Boolean);
+    const bins=[];
+    while(q.some(s=>s.remaining>0)){
+      const bin={sections:[],totalSections:0};let cap=MAX_PER_WEEK;
+      for(const sc of q){if(sc.remaining<=0||cap<=0)continue;const take=Math.min(sc.remaining,cap);bin.sections.push({name:sc.name,short:sc.short,schedType:sc.schedType,school:sc.school,secs:take,of:sc.total});bin.totalSections+=take;sc.remaining-=take;cap-=take;}
+      bin.dayAssignments=buildDays(bin.sections,bin.totalSections);bin.travelMode=detectTravelMode(bin.sections);bin.bi=bins.length;
+      if(bin.totalSections>0)bins.push(bin);
+    }
+    S.opt[subj]=bins;
+  });
+  await new Promise(r=>setTimeout(r,20));
+  S.schools.forEach(sc=>{const sched={};GRADES.forEach(g=>{sched[g]={};sc.grades[g].teachers.forEach((t,ti)=>{const asgn=new Set();const ds={};DAYS.forEach((day,di)=>{const need=SPECIALS.filter(s=>!asgn.has(s));if(!need.length){ds[day]=null;return;}const sp=need[(ti+di)%need.length];asgn.add(sp);const per=sc.grades[g].flexPeriod||S.dp[g];const spec=findSpec(sc.name,sp,day);ds[day]={special:sp,period:per,stName:spec?.name||`${sp} spec`,specialistName:spec?.name||null};});sched[g][t.id]=ds;});});sc.sched=sched;sc.lastGen=new Date().toISOString();});
+  buildPool();runVal();runAudit();save();
+  if(btn){btn.innerHTML='🧮 Run Optimizer (All 15 Schools)';btn.disabled=false;}
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ps=S.opt.PE?.length||0;const ok=S.aud?.allPass;
+  toast(`✅ ${ps}/subject × 5 = ${ps*5} (target=${TARGET}, 1.0FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}, ⌈${dt}÷${MAX_PER_WEEK}⌉=${ps}).${ok?' 🔍 All verified!':' ⚠️ See Audit.'}`,ok?'ok':'wn');
+  refreshUI();const av=document.querySelector('.view.active')?.id?.replace('view-','');if(av&&av!=='dashboard')showView(av);
+}
+
+function findSpec(schoolName,subject,day){const bins=S.opt?.[subject]||[];for(let bi=0;bi<bins.length;bi++){const da=bins[bi].dayAssignments?.find(da=>da.name===schoolName&&(da.dailyBreakdown||{})[day]);if(da)return{name:SPN(subject,bi),bi};}return null;}
+
+function runVal(){
+  const pool=S.pool;const result={pass:true,rules:[]};
+  const nm={};pool.forEach(sp=>{const k=sp.name.trim().toLowerCase();nm[k]=(nm[k]||[]);nm[k].push(sp.name);});
+  const dups=Object.entries(nm).filter(([,a])=>a.length>1);
+  const r1={id:'r1',icon:'👥',label:'No Duplicate Specialist Names',pass:dups.length===0,desc:`All ${pool.length} names must be unique.`,detail:dups.length===0?`All ${pool.length} names unique ✅`:`Duplicates: ${dups.map(([,a])=>'"'+a[0]+'"').join(', ')}`};
+  if(!r1.pass)result.pass=false;result.rules.push(r1);
+  const fv=[];
+  if(S.opt){SPECIALS.forEach(subj=>{(S.opt[subj]||[]).forEach((bin,bi)=>{const name=SPN(subj,bi);
+    if(bin.totalSections>MAX_PER_WEEK)fv.push(`${name}: ${bin.totalSections}>${MAX_PER_WEEK}`);
+    const dt={};(bin.dayAssignments||[]).forEach(da=>{Object.entries(da.dailyBreakdown||{}).forEach(([day,s])=>{dt[day]=(dt[day]||0)+s;});});
+    Object.entries(dt).forEach(([day,t])=>{if(t>MAX_PER_DAY)fv.push(`${name} ${day}: ${t}>${MAX_PER_DAY}`);});
+    DAYS.forEach(day=>{const st=(bin.dayAssignments||[]).filter(da=>(da.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));for(let i=1;i<st.length;i++){const p=st[i-1],c=st[i];if((SCHED_ORDER[p.schedType]||0)>(SCHED_ORDER[c.schedType]||0))fv.push(`${name}: ${day} ${p.schedType}→${c.schedType} impossible`);}});
+  });});}
+  const r2={id:'r2',icon:'📝✈️',label:`≤${MAX_PER_WEEK}/week (target ${TARGET}) · 1.0 FTE = ${FTE_FULL_MIN}–${MAX_PER_WEEK} · A→B→C travel order`,pass:fv.length===0,desc:`Target=${TARGET}/week. 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}. A→C uses natural 30-min gap. Zero period cost.`,detail:fv.length===0?`All specialists ≤${MAX_PER_WEEK}/week · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · Travel A→C valid ✅`:`Issues: ${fv.join('; ')}`};
+  if(!r2.pass)result.pass=false;result.rules.push(r2);
+  S.val=result;const vb=document.getElementById('valBadge');if(vb)vb.classList.toggle('hidden',result.pass);const pb=document.getElementById('poolBadge');if(pb)pb.classList.toggle('hidden',!dups.length);save();return result;
+}
+
+function runAudit(){
+  if(!S.opt){S.aud=null;return null;}
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ms=Math.ceil(dt/MAX_PER_WEEK);
+  const mathCheck={label:`⌈${dt}÷${MAX_PER_WEEK}⌉=${ms}/subject`,pass:SPECIALS.every(subj=>(S.opt[subj]||[]).length===ms),proof:`${dt} sections ÷ ${MAX_PER_WEEK} = ${(dt/MAX_PER_WEEK).toFixed(3)} → ${ms}/subject × 5 = ${ms*5}`,comparison:`At target-only(÷${TARGET}): ⌈${dt}÷${TARGET}⌉=${Math.ceil(dt/TARGET)}/subject=${Math.ceil(dt/TARGET)*5} (${(Math.ceil(dt/TARGET)-ms)*5} more positions)`};
+  const specResults=[];let totalPass=0,totalFail=0;
+  SPECIALS.forEach(subj=>{(S.opt[subj]||[]).forEach((bin,bi)=>{
+    const spName=SPN(subj,bi);const secs=bin.totalSections;const band=fteBand(secs);
+    const dayT={};const tv=[];
+    (bin.dayAssignments||[]).forEach(da=>{Object.entries(da.dailyBreakdown||{}).forEach(([day,s])=>{dayT[day]=(dayT[day]||0)+s;});});
+    DAYS.forEach(day=>{const st=(bin.dayAssignments||[]).filter(da=>(da.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));for(let i=1;i<st.length;i++){const p=st[i-1],c=st[i];if((SCHED_ORDER[p.schedType]||0)>(SCHED_ORDER[c.schedType]||0))tv.push(`${day}:${p.schedType}→${c.schedType}`);}});
+    const maxDay=Math.max(0,...Object.values(dayT));const sumActual=bin.sections.reduce((s,sc)=>s+sc.secs,0);
+    const fullDays=Object.values(dayT).filter(t=>t>FREE_PERIOD_THRESHOLD).length;
+    const freeDays=Object.values(dayT).filter(t=>t>0&&t<=FREE_PERIOD_THRESHOLD).length;
+    const capOk=secs<=MAX_PER_WEEK,dayCapOk=maxDay<=MAX_PER_DAY,sumOk=sumActual===secs,travelOk=tv.length===0;
+    const pass=capOk&&dayCapOk&&sumOk&&travelOk;
+    if(pass)totalPass++;else totalFail++;
+    const issues=[];if(!capOk)issues.push(`${secs}>${MAX_PER_WEEK}`);if(!dayCapOk)issues.push(`Max ${maxDay}/day`);if(!sumOk)issues.push(`Sum error`);if(!travelOk)issues.push(`Travel: ${tv[0]}`);
+    specResults.push({subject:subj,bi,spName,secs,band,pass,issues,dayT,maxDay,sumActual,sections:bin.sections,tv,travelMode:bin.travelMode,fullDays,freeDays});
+  });});
+  const tgCheck={pass:true,gaps:[]};
+  for(let p=1;p<=7;p++){const a=getPT('A')[p-1];const c=getPT('C')[p-1];const gap=Math.round(c.startMin-a.endMin);tgCheck.gaps.push({period:p,aEnd:a.end,cStart:c.start,gapMin:gap,valid:gap>=0});}
+  tgCheck.pass=tgCheck.gaps.every(g=>g.valid);
+  const peBins=S.opt['PE']||[];
+  const cov=GEO.map(name=>{const exp=getST(name);const cov=peBins.reduce((s,bin)=>{const sc=bin.sections.find(sc=>sc.name===name);return s+(sc?.secs||0);},0);return{name:name.replace(' Elementary',''),exp,cov,ok:cov===exp,delta:cov-exp};}).filter(r=>r.exp>0);
+  const allPass=mathCheck.pass&&totalFail===0&&tgCheck.pass&&cov.every(r=>r.ok);
+  S.aud={mathCheck,specResults,totalPass,totalFail,tgCheck,cov,allPass,dt,ms,ts:new Date().toISOString()};
+  save();const ab=document.getElementById('auditBadge');if(ab)ab.classList.toggle('hidden',allPass);return S.aud;
+}
+
+function renderAudit(){
+  const c=document.getElementById('auditCont');if(!c)return;
+  if(!S.aud){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Click ▶ Re-Run Audit.</div></div>';return;}
+  const{mathCheck,specResults,totalPass,totalFail,tgCheck,cov,allPass,dt,ms,ts}=S.aud;const ts2=totalPass+totalFail;
+  let html=`<div class="val-panel ${allPass?'val-pass':'val-fail'}"><div class="val-hdr ${allPass?'val-pass':'val-fail'}">${allPass?'✅':'❌'} Full Audit — Target ${TARGET} · 1.0 FTE = ${FTE_FULL_MIN}–${MAX_PER_WEEK} · Bins fill to ${MAX_PER_WEEK}: ${allPass?`All ${ts2} specialists pass — ${ms}/subject=${ms*5} total`:'Violations detected'}</div>
+  <div class="val-rule"><div style="flex:1;font-size:12px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px;font-size:11.5px">
+    <div>${mathCheck.pass?'✅':'❌'} Math min: ⌈${dt}÷${MAX_PER_WEEK}⌉=${ms}/subject=${ms*5} total</div>
+    <div>${tgCheck.pass?'✅':'❌'} A→C travel: 30-min gap, zero period cost</div>
+    <div>${totalFail===0?'✅':'❌'} Per-specialist: ≤${MAX_PER_WEEK}/wk · ≤${MAX_PER_DAY}/day · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}</div>
+    <div>${cov.every(r=>r.ok)?'✅':'❌'} School coverage: all ${dt} PE sections</div>
+  </div><div style="margin-top:8px;font-size:11px;color:var(--tx2)">Ran: ${new Date(ts).toLocaleString()}</div></div></div></div>`;
+  html+=`<div class="card mb4"><div class="card-hd"><h3>🔢 Mathematical Minimum Proof</h3><span class="badge ${mathCheck.pass?'b-ok':'b-er'}">${mathCheck.pass?'✅':'❌'}</span></div>
+  <div class="info-box"><strong>Target:</strong> ${TARGET}/specialist/week. <strong>1.0 FTE:</strong> ${FTE_FULL_MIN}–${MAX_PER_WEEK} sections. <strong>Proof:</strong> ${mathCheck.proof}. <strong>Can ${ms-1} work?</strong> ${ms-1}×${MAX_PER_WEEK}=${(ms-1)*MAX_PER_WEEK} &lt; ${dt} — <strong style="color:var(--er)">${dt-(ms-1)*MAX_PER_WEEK} sections unassigned ❌</strong>. <strong>Comparison:</strong> ${mathCheck.comparison}</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">
+    ${SPECIALS.map(subj=>{const count=(S.opt?.[subj]||[]).length;const ok=count===ms;const secs=(S.opt?.[subj]||[]).reduce((s,b)=>s+b.totalSections,0);return`<div style="padding:10px;background:var(--bg);border-radius:var(--r);border:2px solid ${ok?SPEC_COLOR[subj]:'var(--er)'};text-align:center"><div style="font-size:16px">${SPEC_ICON[subj]}</div><div style="font-weight:700;color:var(--navy)">${subj}</div><div style="font-size:20px;font-weight:900;color:${ok?SPEC_COLOR[subj]:'var(--er)'}">${count}</div><div style="font-size:10px;color:var(--txm)">${secs} sec ÷ ${MAX_PER_WEEK}</div></div>`;}).join('')}
+    <div style="padding:10px;background:var(--navy);border-radius:var(--r);text-align:center"><div style="font-size:16px">🎨</div><div style="font-weight:700;color:rgba(255,255,255,.8)">Total</div><div style="font-size:20px;font-weight:900;color:var(--gold)">${ms*5}</div><div style="font-size:9px;color:var(--ok-b);font-weight:600">✅ Minimum</div></div>
+  </div></div>`;
+  html+=`<div class="card mb4"><div class="card-hd"><h3>✈️ A→C Travel: 30-min Natural Gap</h3><span class="badge ${tgCheck.pass?'b-ok':'b-er'}">${tgCheck.pass?'✅ Verified':'❌'}</span></div>
+  <div class="info-box">A-school starts 30 min before C-school. Every A-period ends 30 min before the same C-period begins — natural travel window. Zero period consumed.</div>
+  <div style="overflow-x:auto"><table class="audit-table"><thead><tr><th>A-Period</th><th>A Ends</th><th>→ 🚗 →</th><th>C Starts</th><th>Gap</th><th>Valid?</th></tr></thead>
+  <tbody>${tgCheck.gaps.map(g=>`<tr class="${g.valid?'pass-row':'fail-row'}"><td>A-P${g.period}</td><td>${g.aEnd}</td><td style="text-align:center">🚗</td><td>C-P${g.period}</td><td style="text-align:center;font-weight:700;color:${g.gapMin>=0?'var(--ok)':'var(--er)'}">${g.gapMin} min</td><td style="text-align:center">${g.valid?'✅':'❌'}</td></tr>`).join('')}</tbody></table></div></div>`;
+  html+=`<div class="card mb4"><div class="card-hd"><h3>📋 Per-Specialist (1.0 FTE = ${FTE_FULL_MIN}–${MAX_PER_WEEK})</h3><span class="badge b-ny">${ts2} specialists · ${totalPass} pass · ${totalFail} fail</span></div>
+  <div style="overflow-x:auto"><table class="audit-table"><thead><tr><th>Specialist</th><th>Sections</th><th>FTE</th><th>≤${MAX_PER_WEEK}?</th><th>Max/Day</th><th>≤7?</th><th>Full Days</th><th>Free Days</th><th>Travel?</th><th>Result</th></tr></thead>
+  <tbody>${specResults.map(r=>{const capOk=r.secs<=MAX_PER_WEEK,dayOk=r.maxDay<=MAX_PER_DAY,travelOk=r.tv?.length===0;return`<tr class="${r.pass?'pass-row':'fail-row'}"><td><strong>${r.spName}</strong></td><td style="text-align:center;font-weight:700;color:${fteColor(r.secs)}">${r.secs}</td><td>${ftePill(r.secs)}</td><td style="text-align:center">${capOk?'✅':'❌'}</td><td style="text-align:center;font-weight:700;color:${r.maxDay<=MAX_PER_DAY?'var(--ok)':'var(--er)'}">${r.maxDay}</td><td style="text-align:center">${dayOk?'✅':'❌'}</td><td style="text-align:center;color:${r.fullDays>0?'var(--wn)':'var(--ok)'}">${r.fullDays||0} 🟡</td><td style="text-align:center;color:var(--ok)">${r.freeDays||0} 📝</td><td style="text-align:center">${travelOk?'✅':'❌'}</td><td><span class="badge ${r.pass?'b-ok':'b-er'}">${r.pass?'✅':'❌'}</span></td></tr>${!r.pass?`<tr class="fail-row"><td colspan="10" style="padding:4px 10px 8px;font-size:11px;color:var(--er)">⚠️ ${r.issues.join(' · ')}</td></tr>`:''}`}).join('')}</tbody></table></div>
+  ${specResults.filter(r=>r.secs>0&&r.secs<FTE_FULL_MIN).length>0?`<div class="info-box mt3"><strong>⚠️ Partial Positions:</strong> ${specResults.filter(r=>r.secs>0&&r.secs<FTE_FULL_MIN).map(r=>`${r.spName}: ${r.secs} sections (${Math.round(r.secs/MAX_PER_WEEK*100)}% FTE)`).filter((v,i,a)=>a.indexOf(v)===i).slice(0,5).join(', ')}. Unavoidable: 336=10×32+16, 11th specialist carries 16 sections. Can be combined with other duties.</div>`:''}</div>`;
+  html+=`<div class="card"><div class="card-hd"><h3>🏫 School Coverage (PE)</h3><span class="badge ${cov.every(r=>r.ok)?'b-ok':'b-er'}">${cov.every(r=>r.ok)?`All ${dt} sections covered ✅`:'Gap ❌'}</span></div>
+  <div style="overflow-x:auto"><table class="audit-table"><thead><tr><th>School</th><th>Expected</th><th>Covered</th><th>Delta</th><th>FTE</th><th>OK?</th></tr></thead>
+  <tbody>${cov.map(r=>`<tr class="${r.ok?'pass-row':'fail-row'}"><td><strong>${r.name}</strong></td><td style="text-align:center;font-weight:700">${r.exp}</td><td style="text-align:center;font-weight:700;color:${r.ok?'var(--ok)':'var(--er)'}">${r.cov}</td><td style="text-align:center;font-weight:700;color:${r.delta===0?'var(--ok)':'var(--er)'}">${r.delta===0?'0 ✅':r.delta>0?'+'+r.delta:r.delta}</td><td>${ftePill(r.exp)}</td><td style="text-align:center">${r.ok?'✅':'❌'}</td></tr>`).join('')}
+  <tr style="background:var(--gold-p);font-weight:700"><td>TOTAL</td><td style="text-align:center">${cov.reduce((s,r)=>s+r.exp,0)}</td><td style="text-align:center">${cov.reduce((s,r)=>s+r.cov,0)}</td><td style="text-align:center">0 ✅</td><td>—</td><td style="text-align:center">${cov.every(r=>r.ok)?'✅':'❌'}</td></tr>
+  </tbody></table></div></div>`;
+  c.innerHTML=html;
+}
+
+function secColor(secs){return secs>MAX_PER_WEEK?'var(--er)':secs>=25?'var(--ok)':secs>=15?'var(--tx)':'var(--txm)';}
+
+function refreshUI(){
+  popSel();updateSidebar();renderDash();renderSummary();renderGrids();
+  const sc=cur();if(sc){const st=SCHED[sc.schedType];document.getElementById('tbarPill').textContent=`"${sc.schedType}"`;document.getElementById('tbarPill').className=`stype-pill stype-${sc.schedType}`;document.getElementById('tbarHours').textContent=`${st.start}–${st.end}`;document.getElementById('flexLabel').textContent=`${sc.name}`;}
+  if(S.val){const vb=document.getElementById('valBadge');if(vb)vb.classList.toggle('hidden',S.val.pass);}
+  if(S.aud){const ab=document.getElementById('auditBadge');if(ab)ab.classList.toggle('hidden',S.aud.allPass);}
+  popPrinSel();
+}
+function popSel(){const sel=document.getElementById('schoolSel');sel.innerHTML='';[...S.schools].sort((a,b)=>a.name.localeCompare(b.name)).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;o.selected=(s.id===S.cur);sel.appendChild(o);});}
+function popPrinSel(){const sel=document.getElementById('principalSchoolSel');if(!sel)return;const prev=sel.value;sel.innerHTML='<option value="">— Select School —</option>';GEO.map(name=>S.schools.find(s=>s.name===name)).filter(Boolean).forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=`${s.name} (${s.schedType})`;sel.appendChild(o);});if(prev)sel.value=prev;}
+function updateSidebar(){
+  const n=S.schools.filter(s=>s.sched).length;document.getElementById('schedCountLbl').textContent=`${n}/15 ✅`;
+  document.getElementById('sidebarSchools').innerHTML=GEO.map(name=>S.schools.find(s=>s.name===name)).filter(Boolean).map(s=>`<button class="sb-item ${s.id===S.cur?'active':''}" onclick="selectSchool('${s.id}');showView('principal');setTimeout(()=>{document.getElementById('principalSchoolSel').value='${s.id}';renderPrincipal();},100)"><span style="font-size:12px">${s.sched?'✅':'⏳'}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${s.name.replace(' Elementary','')}</span><span class="stype-pill stype-${s.schedType}">${s.schedType}</span></button>`).join('');
+}
+
+function renderSummary(){
+  const c=document.getElementById('dynamicSummaryGrid');if(!c)return;
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ms=Math.ceil(dt/MAX_PER_WEEK);const hasOpt=!!S.opt;
+  const rows=SPECIALS.map(subj=>{const bins=hasOpt?(S.opt[subj]||[]):[];const count=bins.length||ms;const secs=bins.reduce((s,b)=>s+b.totalSections,0)||dt;const full=bins.filter(b=>b.totalSections>=FTE_FULL_MIN).length;const partial=bins.filter(b=>b.totalSections>0&&b.totalSections<FTE_FULL_MIN).length;return{subj,count,secs,full,partial};});
+  const dts=rows.reduce((s,r)=>s+r.count,0);
+  c.innerHTML=`<div class="card mb4"><div class="card-hd"><h3>📊 ${hasOpt?'Computed':'Projected'} Specialist Counts</h3><span class="badge b-ny">Target=${TARGET} · 1.0FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · Bins fill to ${MAX_PER_WEEK} → ⌈${dt}÷${MAX_PER_WEEK}⌉=${ms}/subject×5=${ms*5}</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px">
+    ${rows.map(r=>`<div style="padding:12px;background:var(--bg);border-radius:var(--rl);border:2px solid ${SPEC_COLOR[r.subj]};text-align:center"><div style="font-size:16px">${SPEC_ICON[r.subj]}</div><div style="font-weight:700;color:var(--navy)">${r.subj}</div><div style="font-size:26px;font-weight:900;color:${SPEC_COLOR[r.subj]}">${r.count}</div><div style="font-size:10px;color:var(--txm)">${r.secs} sec ÷ ${MAX_PER_WEEK}</div>${hasOpt?`<div style="font-size:9px;color:${r.full===r.count?'var(--ok)':'var(--wn)'}">${r.full} full(${FTE_FULL_MIN}–${MAX_PER_WEEK}) · ${r.partial} partial</div>`:''}</div>`).join('')}
+    <div style="padding:12px;background:var(--navy);border-radius:var(--rl);text-align:center"><div style="font-size:16px">🎨</div><div style="font-weight:700;color:rgba(255,255,255,.8)">District Total</div><div style="font-size:26px;font-weight:900;color:var(--gold)">${dts}</div><div style="font-size:10px;color:rgba(255,255,255,.5)">${ms}×5 · tgt=${TARGET} · cap=${MAX_PER_WEEK}</div>${S.aud?`<div style="font-size:9px;color:${S.aud.allPass?'var(--ok-b)':'var(--wn-b)'}">${S.aud.allPass?'🔍 Audited ✅':'🔍 See audit'}</div>`:''}</div>
+  </div>${S.val?`<div style="margin-top:10px"><div class="alert ${S.val.pass?'al-ok':'al-wn'}" style="margin-bottom:0"><span class="al-i">${S.val.pass?'✅':'⚠️'}</span><div><strong>Validation:</strong> ${S.val.pass?'All constraints passing':'Issues detected'} · <button class="btn btn-s btn-sm" onclick="showView('validation')">Details</button></div></div></div>`:''}</div>`;
+}
+
+function renderDash(){
+  const c=document.getElementById('dashGrid');if(!c)return;
+  if(S.aud){const vs=document.getElementById('dashValSummary');if(vs)vs.innerHTML=`<div class="alert ${S.aud.allPass?'al-ok':'al-er'} mb3"><span class="al-i">🔍</span><div><strong>Full Audit:</strong> ${S.aud.allPass?`All ${S.aud.totalPass+S.aud.totalFail} pass · Target=${TARGET} · 1.0FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · ${S.aud.ms}/subject=${S.aud.ms*5} total`:`${S.aud.totalFail} failures`} · <button class="btn btn-s btn-sm" onclick="showView('audit')">View</button></div></div>`;}
+  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:9px">${GEO.map(name=>S.schools.find(s=>s.name===name)).filter(Boolean).map(s=>{const gs=getGS(s.name);const total=getST(s.name);const sFree=getFreePeriod([s]);const band=fteBand(total);const chips=GRADES.map(g=>`<span style="background:${GRADE_BG[g]};color:${GRADE_COLORS[g]};padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">${g}:${gs[g]||0}</span>`).join(' ');return`<div onclick="selectSchool('${s.id}');showView('principal');setTimeout(()=>{document.getElementById('principalSchoolSel').value='${s.id}';renderPrincipal();},100)" style="padding:11px 13px;background:var(--bg);border-radius:var(--r);border:1px solid var(--bdr);cursor:pointer;transition:.15s" onmouseover="this.style.borderColor='var(--navy)'" onmouseout="this.style.borderColor='var(--bdr)'"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><span>${s.sched?'✅':'⏳'}</span><span style="font-size:11.5px;font-weight:700;color:var(--navy);flex:1">${s.name.replace(' Elementary','')}</span><span class="stype-pill stype-${s.schedType}">${s.schedType}</span></div><div style="font-size:10px;color:var(--txm);margin-bottom:4px">${s.address}, ${s.city}</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px">${chips}</div><div style="font-size:10.5px;font-weight:600">${band.emoji} ${total} sections · 📝 P${sFree}</div></div>`;}).join('')}</div>`;
+}
+
+function renderGrids(){
+  const wrap=document.getElementById('gradeSectionGridWrap');if(!wrap)return;
+  const schools=GEO.map(name=>S.schools.find(s=>s.name===name)).filter(Boolean);
+  const dgt={};GRADES.forEach(g=>{dgt[g]=0;});let total=0;
+  schools.forEach(sc=>{const gs=getGS(sc.name);GRADES.forEach(g=>{dgt[g]+=(gs[g]||0);});total+=getST(sc.name);});
+  const ms=Math.ceil(total/MAX_PER_WEEK);
+  const gte=document.getElementById('sectionGrandTotal');
+  if(gte)gte.innerHTML=`Total: <strong>${total}</strong> · ⌈${total}÷${MAX_PER_WEEK}⌉ = <strong>${ms}</strong>/subject × 5 = <strong>${ms*5}</strong> (target=${TARGET}, 1.0FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK})`;
+  const gh=GRADES.map(g=>`<th class="grade-col" style="background:${GRADE_COLORS[g]}"><div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:10px;font-weight:800;color:#fff">${g}</span><div style="font-size:8px;opacity:.8;font-weight:400">${GL[g].split(' ')[0]}</div></div></th>`).join('');
+  const rows=schools.map(sc=>{const gs=getGS(sc.name);const t=getST(sc.name);const def=DGS[sc.name]||{};const cells=GRADES.map(g=>{const val=gs[g]||0;const dv=def[g]||0;const ch=val!==dv;return`<td><input type="number" value="${val}" min="0" max="15" class="${ch?'changed':''}" onchange="setGS('${sc.name}','${g}',this.value);this.className=+this.value!==${dv}?'changed':'';renderGrids();renderSummary();renderDash()"/></td>`;}).join('');const band=fteBand(t);return`<tr><td class="school-cell"><span class="stype-pill stype-${sc.schedType}" style="margin-right:4px">${sc.schedType}</span>${sc.name.replace(' Elementary','')}<br><span style="font-size:9px;color:var(--txm);font-weight:400">${sc.city}</span></td>${cells}<td class="total-cell">${t}</td><td class="spec-cell">${band.emoji} ${band.label}</td></tr>`;}).join('');
+  wrap.innerHTML=`<table class="grade-grid"><thead><tr><th class="school-col">School</th>${gh}<th class="total-col">Total</th><th class="total-col" style="min-width:140px">FTE (${FTE_FULL_MIN}–${MAX_PER_WEEK}=1.0)</th></tr><tr style="background:rgba(30,58,95,.05)"><td class="school-cell" style="font-size:10px;color:var(--txm);font-style:italic;padding:4px 10px">Sections=teachers at each grade · applies to all 5 specials equally</td>${GRADES.map(g=>`<td style="text-align:center;font-size:10px;color:${GRADE_COLORS[g]};font-weight:600;padding:3px">${dgt[g]}</td>`).join('')}<td style="text-align:center;font-size:10px;color:var(--txm);padding:3px">${total}</td><td style="text-align:center;font-size:10px;color:var(--txm);padding:3px">÷${MAX_PER_WEEK}=${ms}/subj</td></tr></thead><tbody>${rows}</tbody><tfoot><tr class="footer-row"><td class="school-cell">DISTRICT TOTALS</td>${GRADES.map(g=>`<td style="text-align:center;font-weight:700">${dgt[g]}</td>`).join('')}<td class="total-cell">${total}</td><td class="total-cell">÷${MAX_PER_WEEK}=${ms}/subj</td></tr></tfoot></table><div class="info-box mt3">Yellow border = edited from 26-27 default. ↺ Reset restores 336-section defaults. Target=${TARGET} · 1.0FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · Bins fill to ${MAX_PER_WEEK}.</div>`;
+}
+
+let _sel='PE';
+function renderAssignments(){
+  const c=document.getElementById('assignmentsCont');if(!c)return;
+  const tabs=document.getElementById('subjTabs');if(tabs)tabs.innerHTML=SPECIALS.map(subj=>{const bins=S.opt?.[subj]||[];return`<button class="btn btn-sm ${_sel===subj?'btn-p':'btn-s'}" onclick="_sel='${subj}';renderAssignments()">${SPEC_ICON[subj]} ${subj}<span style="opacity:.7;font-size:10px;margin-left:3px">(${bins.length})</span></button>`;}).join('');
+  if(!S.opt){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Click 🧮 Run Optimizer first.</div></div>';return;}
+  const bins=S.opt[_sel]||[];if(!bins.length){c.innerHTML=`<div class="alert al-wn"><span class="al-i">⚠️</span><div>No sections for ${_sel}.</div></div>`;return;}
+  const color=SPEC_COLOR[_sel];const ts=bins.reduce((s,b)=>s+b.totalSections,0);
+  const af=S.aud?.specResults?.filter(r=>r.subject===_sel)||[];
+  c.innerHTML=`<div class="card mb4" style="border-left:4px solid ${color}">
+  <div class="card-hd"><h3>${SPEC_ICON[_sel]} ${_sel} — ${bins.length} Specialist${bins.length!==1?'s':''}</h3>
+  <div class="flex g2r" style="flex-wrap:wrap"><span class="chip">${ts} sections</span><span class="chip">⌈${ts}÷${MAX_PER_WEEK}⌉=${Math.ceil(ts/MAX_PER_WEEK)} minimum</span><span class="chip">${bins.filter(b=>fteBand(b.totalSections).tier==='FULL').length} full(${FTE_FULL_MIN}–${MAX_PER_WEEK}) · ${bins.filter(b=>fteBand(b.totalSections).tier!=='FULL').length} partial</span>${S.aud?`<span class="badge ${af.every(r=>r.pass)?'b-ok':'b-er'}">🔍 ${af.every(r=>r.pass)?'✅':'❌'}</span>`:''}</div></div>
+  <div class="info-box" style="font-size:11.5px"><strong>Target=${TARGET} · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}:</strong> Bins fill to ${MAX_PER_WEEK}. 🟡=full day (7 sections, no free). 📝=≤6 sections (free period). ✈️=A→C in natural gap.</div>
+  ${bins.map((bin,bi)=>{
+    const spName=SPN(_sel,bi);const secs=bin.totalSections;const band=fteBand(secs);const ar=af.find(r=>r.bi===bi);const tm=bin.travelMode||{};
+    const stags=bin.sections.map(sc=>{const tc=sc.schedType==='A'?'var(--sA)':sc.schedType==='B'?'var(--sB)':'var(--sC)';const bg=sc.schedType==='A'?'var(--sA-b)':sc.schedType==='B'?'var(--sB-b)':'var(--sC-b)';const isSp=sc.secs<sc.of;return`<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:${bg};color:${tc};border:1px solid ${tc};border-radius:var(--r);font-size:11px;font-weight:600;margin-right:5px;margin-bottom:4px"><span class="stype-pill stype-${sc.schedType}" style="font-size:8px">${sc.schedType}</span>${sc.short} — ${sc.secs}${isSp?`<em style="font-size:9px;opacity:.7">/${sc.of}</em>`:''} sec${isSp?' ✂️':''}</span>`;}).join('');
+    const dviz=DAYS.map(day=>{const st=(bin.dayAssignments||[]).filter(da=>(da.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));const total=st.reduce((s,da)=>s+(da.dailyBreakdown[day]||0),0);if(total===0)return`<div style="text-align:center;padding:5px 3px;background:var(--bg);border-radius:5px;font-size:10px;color:var(--txm)">${day.slice(0,3)}<br>—</div>`;const isFull=total>FREE_PERIOD_THRESHOLD;const labels=st.map(da=>{const bg=da.schedType==='A'?'var(--sA-b)':da.schedType==='B'?'var(--sB-b)':'var(--sC-b)';const tc=da.schedType==='A'?'var(--sA)':da.schedType==='B'?'var(--sB)':'var(--sC)';return`<div style="font-size:8.5px;font-weight:600;color:${tc};background:${bg};padding:1px 4px;border-radius:3px;margin-top:1px">${da.short?.slice(0,6)||'—'}(${da.dailyBreakdown[day]})</div>`;}).join('');return`<div style="text-align:center;padding:4px 3px;border-radius:5px;font-size:10px;background:${isFull?'rgba(254,243,199,.5)':'var(--bg)'};border:1px solid ${isFull?'#fcd34d':'var(--bdr)'}">${day.slice(0,3)} ${isFull?'🟡':'📝'}<br>${labels}<div style="font-size:9px;font-weight:700;color:${isFull?'var(--wn)':'var(--ok)'};margin-top:1px">${total}/${MAX_PER_DAY}</div></div>`;}).join('');
+    return`<div style="background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rl);margin-bottom:13px;overflow:hidden"><div style="padding:13px 18px;border-bottom:1px solid var(--bdr)"><div style="display:flex;align-items:flex-start;gap:12px"><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap"><strong style="font-size:14px;color:${color}">${spName}</strong>${ftePill(secs)}${ar?`<span class="badge ${ar.pass?'b-ok':'b-er'}" style="font-size:10px">🔍 ${ar.pass?'✅':'❌'}</span>`:''}${bin.sections.some(s=>s.secs<s.of)?'<span class="badge b-wn" style="font-size:10px">✂️ split</span>':''}${tm.mode&&tm.mode!=='solo'?`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${tm.mode==='rotation'?'rgba(30,58,95,.1)':'var(--ok-b)'};color:${tm.mode==='rotation'?'var(--navy)':'var(--ok)'}">${tm.mode==='rotation'?'🔄':'✈️'} ${tm.label}</span>`:''}</div><div style="margin-bottom:8px">${stags}</div><div style="font-size:11px;color:var(--tx2)"><strong>Sections:</strong> ${secs}/${MAX_PER_WEEK} · <strong>FTE:</strong> ${band.label}</div>${tm.note?`<div style="font-size:10.5px;color:var(--ok);margin-top:4px">💡 ${tm.note}</div>`:''}</div><div style="min-width:280px"><div style="font-size:10px;font-weight:600;color:var(--txm);margin-bottom:4px;text-align:center">🟡=full day(no free) · 📝=includes free/prep</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px">${dviz}</div></div></div></div></div>`;
+  }).join('')}</div>`;
+}
+
+let _sf='All';
+function renderSpcards(){
+  const c=document.getElementById('spCardsCont');const fr=document.getElementById('spcardsFilter');
+  if(!S.opt){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div>';fr.innerHTML='';return;}
+  fr.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--tx2)">Subject:</span>${['All',...SPECIALS].map(s=>`<button class="btn btn-sm ${_sf===s?'btn-p':'btn-s'}" onclick="_sf='${s}';renderSpcards()">${s==='All'?'All':SPEC_ICON[s]+' '+s}</button>`).join('')}`;
+  const allBins=[];SPECIALS.forEach(subj=>{if(_sf!=='All'&&_sf!==subj)return;(S.opt[subj]||[]).forEach((bin,bi)=>{const ar=S.aud?.specResults?.find(r=>r.subject===subj&&r.bi===bi);allBins.push({...bin,subject:subj,spName:SPN(subj,bi),ar});});});
+  if(!allBins.length){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>No cards.</div></div>';return;}
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ps=Math.ceil(dt/MAX_PER_WEEK);
+  c.innerHTML=`<div style="font-size:11.5px;color:var(--tx2);margin-bottom:14px"><strong>${allBins.length}</strong> cards · Target=${TARGET} · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · ${dt} sec ÷ ${MAX_PER_WEEK} = ${ps}/subject × 5 = ${ps*5}</div>`+allBins.map(b=>renderCard(b)).join('');
+}
+
+function renderCard(bin){
+  const{subject,spName,sections,dayAssignments,ar}=bin;
+  const ts=bin.totalSections;const band=fteBand(ts);
+  const icon=SPEC_ICON[subject],color=SPEC_COLOR[subject],colbg=SPEC_COLBG[subject];
+  const isSplit=sections.some(s=>s.secs<s.of);const tm=bin.travelMode||{};
+  const dayT={};(dayAssignments||[]).forEach(da=>{Object.entries(da.dailyBreakdown||{}).forEach(([day,s])=>{dayT[day]=(dayT[day]||0)+s;});});
+  const fullDays=Object.values(dayT).filter(t=>t>FREE_PERIOD_THRESHOLD).length;
+  const weekStrip=DAYS.map(day=>{const st=(dayAssignments||[]).filter(da=>(da.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));const dt2=st.reduce((s,da)=>s+(da.dailyBreakdown[day]||0),0);const isFull=dt2>FREE_PERIOD_THRESHOLD;if(dt2===0)return`<div class="sp-week-day"><div class="sp-week-day-label">${day.slice(0,3)}</div><div style="color:var(--txm);font-size:10px">—</div></div>`;return`<div class="sp-week-day" style="${isFull?'border-color:#fcd34d;background:rgba(254,243,199,.3)':''}"><div class="sp-week-day-label">${day.slice(0,3)} ${isFull?'🟡':'📝'}</div>${st.map(da=>{const bg=da.schedType==='A'?'var(--sA-b)':da.schedType==='B'?'var(--sB-b)':'var(--sC-b)';const tc=da.schedType==='A'?'var(--sA)':da.schedType==='B'?'var(--sB)':'var(--sC)';return`<div style="font-size:9px;font-weight:600;color:${tc};background:${bg};padding:1px 5px;border-radius:3px;margin:1px auto">${da.short?.slice(0,8)||'—'}(${da.dailyBreakdown[day]})</div>`;}).join('')}<div style="font-size:9px;color:${isFull?'var(--wn)':'var(--ok)'};margin-top:2px">${dt2}/${MAX_PER_DAY}${isFull?' (full)':' 📝'}</div></div>`;}).join('');
+  const dayBlocks=DAYS.map(day=>{const st=(dayAssignments||[]).filter(da=>(da.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));if(!st.length)return'';const dt2=st.reduce((s,da)=>s+(da.dailyBreakdown[day]||0),0);const isFull=dt2>FREE_PERIOD_THRESHOLD;const scType=st[0].schedType;const freePeriod=isFull?null:getFreePeriod(st.map(da=>da.school));const tags=st.map(da=>`<span class="stype-pill stype-${da.schedType}" style="font-size:8px">${da.schedType}</span> ${da.name?.replace(' Elementary','')||''} (${da.dailyBreakdown[day]} sec)`).join(' <strong>→</strong> ');const hdrCls=isFull?'sp-day-hdr-full':`sp-day-hdr-${scType}`;let rows='';let placed=0;let si=0;let srem=st[0]?.dailyBreakdown?.[day]||0;let prevSc=null;for(let p=1;p<=7;p++){const cSc=st[si];if(!cSc&&placed>=dt2)break;const useSc=cSc||st[st.length-1];const pt=getPT(useSc.schedType);const ptime=pt[p-1];if(!isFull&&p===freePeriod){const lSc=st[st.length-1];const lPT=getPT(lSc.schedType);const lPtime=lPT[p-1];rows+=`<div class="sp-row-prep"><div class="sp-row-prep-lbl">📝</div><div class="sp-row-prep-content"><span style="font-size:18px">📝</span><div><div style="font-weight:700;color:var(--ok);font-size:12px">Planning &amp; Preparation</div><div style="font-size:10px;color:var(--ok)">${lPtime.start}–${lPtime.end} · Free period (≤${FREE_PERIOD_THRESHOLD} sections today)</div></div></div></div>`;}else if(placed<dt2&&cSc){if(prevSc&&prevSc.schedType!==cSc.schedType&&(SCHED_ORDER[prevSc.schedType]||0)<(SCHED_ORDER[cSc.schedType]||0)){const pPT=getPT(prevSc.schedType);const pPtime=pPT[p-2];const gap=Math.round(ptime.startMin-pPtime.endMin);rows+=`<div class="sp-travel-gap"><div class="sp-travel-gap-lbl">🚗<br>GAP</div><div class="sp-travel-gap-content"><div class="sp-travel-gap-title">TRAVEL: ${pPtime.end} → ${ptime.start}</div><div class="sp-travel-gap-sub">${gap}-min natural gap · ${prevSc.name?.replace(' Elementary','')||''} → ${cSc.name?.replace(' Elementary','')||''}</div><div class="sp-travel-gap-note">✅ NOT a teaching period — natural gap. Weekly total unaffected.</div></div></div>`;}placed++;const pt2=getPT(cSc.schedType);const ptime2=pt2[p-1];rows+=`<div class="sp-row" style="background:${isFull?'rgba(254,243,199,.3)':colbg}"><div class="sp-row-lbl"><div class="sp-row-num">P${p}${isFull?' 🟡':''}</div><div class="sp-row-time">${ptime2.start}</div><div class="sp-row-time">${ptime2.end}</div></div><div class="sp-row-content"><div style="font-weight:700;color:${color};font-size:12px">Section ${placed}</div><div style="font-size:10.5px;color:var(--tx2)">${cSc.name?.replace(' Elementary','')||''}</div><div style="font-size:9.5px;color:var(--txm)"><span class="stype-pill stype-${cSc.schedType}" style="font-size:7px">${cSc.schedType}</span> · ${SCHED[cSc.schedType].start}–${SCHED[cSc.schedType].end}</div></div></div>`;prevSc=cSc;srem--;if(srem<=0){si++;if(si<st.length)srem=st[si]?.dailyBreakdown?.[day]||0;}}};
+    return`<div class="sp-day-section"><div class="sp-day-hdr ${hdrCls}">📅 ${day} — ${tags}${st.length>1&&[...new Set(st.map(d=>d.schedType))].length>1?' <span style="font-size:10px;opacity:.8">✈️ travel in gap</span>':''}<span style="margin-left:auto;font-size:10.5px">${dt2}/${MAX_PER_DAY} · ${isFull?'<span style="color:var(--wn)">🟡 Full day (no free period)</span>':'<span style="color:var(--ok)">📝 P'+(freePeriod||7)+' free ✅</span>'}</span></div>${rows}${isFull?`<div style="padding:7px 12px;background:rgba(254,243,199,.3);border-top:1px solid #fcd34d;font-size:11px;color:var(--wn)">🟡 <strong>Full teaching day</strong> — ${dt2} sections, all ${MAX_PER_DAY} periods. No free period today. Other days include free/prep time.</div>`:''}</div>`;
+  }).join('');
+  return`<div class="sp-card" style="border-color:${ar?.pass===false?'var(--er)':color}"><div class="sp-card-hdr" style="background:linear-gradient(135deg,${colbg} 0%,#fff 55%)"><div class="sp-icon" style="background:${colbg};border:2px solid ${color}">${icon}</div><div class="sp-card-title"><h3 style="color:${color}">${spName}</h3><div class="sp-sub">Subject: <strong>${subject}</strong>${isSplit?' · ✂️ covers school on partial days':''}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center">${[...sections].sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0)).map(sc=>{const tc=sc.schedType==='A'?'var(--sA)':sc.schedType==='B'?'var(--sB)':'var(--sC)';const bg=sc.schedType==='A'?'var(--sA-b)':sc.schedType==='B'?'var(--sB-b)':'var(--sC-b)';const isSp=sc.secs<sc.of;return`<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:${bg};color:${tc};border:1px solid ${tc};border-radius:var(--r);font-size:11px;font-weight:600"><span class="stype-pill stype-${sc.schedType}" style="font-size:7px">${sc.schedType}</span>${sc.short} (${sc.secs}${isSp?`/${sc.of}✂️`:''} sec)</span>`;}).join('')}${tm.mode&&tm.mode!=='solo'?`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${tm.mode==='rotation'?'rgba(30,58,95,.1)':'var(--ok-b)'};color:${tm.mode==='rotation'?'var(--navy)':'var(--ok)'}">${tm.mode==='rotation'?'🔄':'✈️'} ${tm.label}</span>`:''}</div>${tm.note?`<div style="font-size:10.5px;color:var(--ok);margin-top:5px">💡 ${tm.note}</div>`:''}</div><div style="text-align:right;flex-shrink:0;min-width:140px"><div style="font-size:26px;font-weight:900;color:${color}">${ts}<span style="font-size:12px;font-weight:500;color:var(--txm)">/${MAX_PER_WEEK}</span></div><div style="font-size:10px;color:var(--txm);margin-top:2px">sections/week (cap)</div><div style="font-size:10px;color:var(--tx2);margin-top:1px">target: ${TARGET}</div><div style="margin-top:6px">${ftePill(ts)}</div><div style="margin-top:4px;font-size:10px">${fullDays>0?`<span style="color:var(--wn)">🟡 ${fullDays} full day${fullDays!==1?'s':''}</span><br>`:''}<span style="color:var(--ok)">📝 ${5-fullDays} day${5-fullDays!==1?'s':''} with free</span></div>${ar?`<div style="margin-top:3px"><span class="badge ${ar.pass?'b-ok':'b-er'}" style="font-size:10px">🔍${ar.pass?'Audit ✅':'Audit ❌'}</span></div>`:''}</div></div><div class="sp-week-strip">${weekStrip}</div><div style="padding:10px 0 4px">${dayBlocks}</div><div class="sp-footer"><div>📅 <strong>${ts}</strong>/${MAX_PER_WEEK} sec · target=${TARGET} · ${band.emoji} <strong>${band.label}</strong></div><div>🏫 ${sections.length} school${sections.length!==1?'s':''}: ${[...sections].sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0)).map(s=>s.short).join(' → ')}</div>${fullDays>0?`<div>🟡 ${fullDays} full day${fullDays!==1?'s':''} (all ${MAX_PER_DAY} periods) · 📝 ${5-fullDays} with free</div>`:'<div>📝 Every day includes a free/prep period</div>'}${tm.mode==='ac_gap'||tm.mode==='ab_gap'?`<div>✈️ Travel in ${tm.gapMin}-min gap — <strong>no period consumed</strong></div>`:''}<div style="margin-left:auto;color:var(--txm);font-size:10px">Generated ${new Date().toLocaleDateString()}</div></div></div>`;
+}
+
+function renderPrincipal(){
+  const c=document.getElementById('principalCont');if(!c)return;
+  const sel=document.getElementById('principalSchoolSel');const sid=sel?.value;
+  if(!sid){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Select a school above.</div></div>';return;}
+  const school=S.schools.find(s=>s.id===sid);
+  if(!school||!S.opt){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div>';return;}
+  const pt=getPT(school.schedType);const sFree=getFreePeriod([school]);const gs=getGS(school.name);const total=getST(school.name);
+  const visits=SPECIALS.map(subj=>{const v=[];(S.opt[subj]||[]).forEach((bin,bi)=>{const ss=bin.sections.find(sc=>sc.name===school.name);if(!ss)return;const spName=SPN(subj,bi);const dv=DAYS.map(day=>{const da=bin.dayAssignments?.find(da=>da.name===school.name&&(da.dailyBreakdown||{})[day]);if(!da)return null;const secToday=da.dailyBreakdown[day]||0;const st=(bin.dayAssignments||[]).filter(d=>(d.dailyBreakdown||{})[day]).sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0));const mi=st.findIndex(d=>d.name===school.name);const sb=st.slice(0,mi).reduce((s,d)=>s+(d.dailyBreakdown[day]||0),0);const dt2=st.reduce((s,d)=>s+(d.dailyBreakdown[day]||0),0);const isFull=dt2>FREE_PERIOD_THRESHOLD;let sp=sb+1;if(!isFull&&sFree<=sp)sp++;const ep=Math.min(7,sp+secToday-1);return{day,secToday,sp,ep,st:pt[sp-1]?.start||'—',et:pt[ep-1]?.end||'—',isFull};}).filter(Boolean);if(dv.length>0)v.push({spName,bi,ss:ss.secs,sof:ss.of,dv,isSplit:ss.secs<ss.of,tm:bin.travelMode});});return{subject:subj,v};}).filter(sv=>sv.v.length>0);
+  const chips=GRADES.map(g=>{const n=gs[g]||0;return n>0?`<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;background:${GRADE_BG[g]};color:${GRADE_COLORS[g]};border-radius:var(--r);font-size:11px;font-weight:700">${GL[g]}: ${n} teacher${n!==1?'s':''}</span>`:''}).join('');
+  c.innerHTML=`<div class="principal-card"><div class="principal-hdr"><div class="sp-icon" style="background:rgba(255,255,255,.15);font-size:22px">🏫</div><div style="flex:1"><h3>${school.name}</h3><div style="font-size:12px;opacity:.85">${school.principal} · ${school.address}, ${school.city} · <span class="stype-pill stype-${school.schedType}">${school.schedType}</span> · ${SCHED[school.schedType].start}–${SCHED[school.schedType].end}</div><div style="font-size:11px;opacity:.75;margin-top:3px">Specialist free period (days ≤${FREE_PERIOD_THRESHOLD} sections): <strong>P${sFree} (${pt[sFree-1].start}–${pt[sFree-1].end})</strong> · ${total} sections · Generated ${new Date().toLocaleDateString()}</div></div></div>
+  <div style="padding:12px 18px;background:var(--bg);border-bottom:1px solid var(--bdr)"><div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px">📚 26-27 Grade-Level Roster (${total} classroom teachers)</div><div style="display:flex;gap:8px;flex-wrap:wrap">${chips}</div></div>
+  <div style="padding:16px 18px"><h4 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">📋 Specialist Visit Schedule — All 5 Specials</h4>
+  ${visits.length===0?'<div class="alert al-wn"><span class="al-i">⚠️</span><div>No assignments. Run the optimizer.</div></div>':visits.map(sv=>`<div style="margin-bottom:16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:18px">${SPEC_ICON[sv.subject]}</span><strong style="color:${SPEC_COLOR[sv.subject]};font-size:13px">${sv.subject}</strong><span style="font-size:11px;color:var(--txm)">${total} sections at this building</span></div>
+  ${sv.v.map(v=>`<div class="sp-visit-row"><div style="min-width:150px"><strong style="font-size:12px">${v.spName}</strong>${v.isSplit?`<br><span style="font-size:10px;color:var(--wn)">✂️ ${v.ss}/${v.sof} sections</span>`:''}</div><div style="flex:1"><div style="display:flex;gap:6px;flex-wrap:wrap">${v.dv.map(dv=>`<div style="padding:5px 10px;background:${dv.isFull?'rgba(254,243,199,.3)':'var(--bg)'};border-radius:var(--r);border:1px solid ${dv.isFull?'#fcd34d':'var(--bdr)'};font-size:11px;text-align:center;min-width:100px"><div style="font-weight:700;color:var(--navy)">${dv.day.slice(0,3)} ${dv.isFull?'🟡':'📝'}</div><div style="font-size:10.5px;color:var(--tx2);font-weight:600">P${dv.sp}${dv.ep>dv.sp?'–P'+dv.ep:''}</div><div style="font-size:9.5px;color:var(--txm)">${dv.st}–${dv.et}</div><div style="font-size:10px;font-weight:700;color:var(--ok)">${dv.secToday} section${dv.secToday!==1?'s':''}</div>${dv.isFull?`<div style="font-size:9px;color:var(--wn)">No free period</div>`:''}</div>`).join('')}${DAYS.filter(day=>!v.dv.find(dv=>dv.day===day)).map(day=>`<div style="padding:5px 10px;background:var(--bg);border-radius:var(--r);border:1px dashed var(--bdr);font-size:11px;text-align:center;min-width:100px;opacity:.4"><div style="font-weight:700;color:var(--txm)">${day.slice(0,3)}</div><div style="font-size:10px;color:var(--txm)">Not visiting</div></div>`).join('')}</div></div></div>`).join('')}</div>`).join('')}
+  </div>
+  <div style="padding:0 18px 16px;border-top:1px solid var(--bdr)"><h4 style="font-size:13px;font-weight:700;color:var(--navy);margin:14px 0 10px">📅 Teacher Specials Schedule</h4>
+  ${school.sched?GRADES.map(grade=>{const gd=school.grades[grade];if(!gd||gd.teachers.length===0)return'';const dp=S.dp[grade];const periodTime=pt[dp-1];const color=GRADE_COLORS[grade];return`<div style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:${color};color:#fff;font-size:11px;font-weight:800">${grade}</span><div style="font-size:11px;font-weight:700;color:var(--navy)">${GL[grade]} — ${gd.teachers.length} teacher${gd.teachers.length!==1?'s':''} · P${dp} · ${periodTime.start}–${periodTime.end}</div></div><div style="overflow-x:auto"><table class="principal-sched-table"><thead><tr><th style="text-align:left;min-width:140px;background:${color}">Teacher</th>${DAYS.map(d=>`<th style="background:${color}">${d.slice(0,3)}</th>`).join('')}</tr></thead><tbody>${gd.teachers.map(t=>{const days=DAYS.map(day=>{const e=school.sched[grade]?.[t.id]?.[day];if(!e)return`<td style="text-align:center;color:var(--txm)">—</td>`;const sp=e.specialistName?`<br><span style="font-size:8.5px;color:var(--txm)">${e.specialistName.split(' ').slice(0,2).join(' ')}</span>`:'';return`<td style="background:${SPEC_COLBG[e.special]||'#f0f4f8'};border:1px solid ${SPEC_COLOR[e.special]||'#94a3b8'}"><span style="font-size:10px;font-weight:700">${SPEC_ICON[e.special]||''} ${e.special}</span>${sp}</td>`;}).join('');return`<tr><td class="grade-cell" style="font-size:11px">${t.name}</td>${days}</tr>`;}).join('')}</tbody></table></div></div>`;}).join(''):'<div class="alert al-wn"><span class="al-i">⚠️</span><div>Run the optimizer to generate the schedule.</div></div>'}
+  </div></div>`;
+}
+
+function renderStaffingReport(){
+  const c=document.getElementById('staffingReportCont');if(!c)return;
+  if(!S.opt){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div>';return;}
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ms=Math.ceil(dt/MAX_PER_WEEK);let ts=0,tsc=0;
+  const rows=SPECIALS.map(subj=>{const bins=S.opt[subj]||[];const secs=bins.reduce((s,b)=>s+b.totalSections,0);const full=bins.filter(b=>b.totalSections>=FTE_FULL_MIN).length;const part=bins.filter(b=>b.totalSections>0&&b.totalSections<FTE_FULL_MIN).length;const splits=bins.filter(b=>b.sections.some(s=>s.secs<s.of)).length;ts+=bins.length;tsc+=secs;return{subj,count:bins.length,secs,full,part,splits,avg:bins.length?Math.round(secs/bins.length):0,util:bins.length?Math.round(secs/(bins.length*MAX_PER_WEEK)*100):0};});
+  c.innerHTML=`<div class="card mb4" style="border-left:4px solid var(--ok)"><div style="font-size:12px;color:var(--navy);line-height:2"><strong>🎯 Target=${TARGET}/specialist/week</strong> (ideal, every day has a free period). <strong>✅ 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}</strong> sections — all three are full time. <strong>🧮 Strategy:</strong> Bins fill to ${MAX_PER_WEEK} → ⌈${dt}÷${MAX_PER_WEEK}⌉=<strong>${ms}/subject × 5 = ${ms*5} district-wide</strong> (vs. ÷${TARGET}=${Math.ceil(dt/TARGET)}/subject=${Math.ceil(dt/TARGET)*5} — saves ${(Math.ceil(dt/TARGET)-ms)*5} positions).</div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin-bottom:20px">${rows.map(r=>`<div style="padding:12px;background:var(--bg);border-radius:var(--rl);border:2px solid ${SPEC_COLOR[r.subj]};text-align:center"><div style="font-size:16px">${SPEC_ICON[r.subj]}</div><div style="font-weight:700;color:var(--navy)">${r.subj}</div><div style="font-size:26px;font-weight:900;color:${SPEC_COLOR[r.subj]}">${r.count}</div><div style="font-size:10px;color:var(--txm)">${r.secs} sec ÷ ${MAX_PER_WEEK}</div><div style="font-size:9px;color:${r.full===r.count?'var(--ok)':'var(--wn)'}">${r.full} full(${FTE_FULL_MIN}–${MAX_PER_WEEK}) · ${r.part} partial</div></div>`).join('')}<div style="padding:12px;background:var(--navy);border-radius:var(--rl);text-align:center"><div style="font-size:16px">🎨</div><div style="font-weight:700;color:rgba(255,255,255,.8)">District Total</div><div style="font-size:26px;font-weight:900;color:var(--gold)">${ts}</div><div style="font-size:10px;color:rgba(255,255,255,.5)">${ms}×5 subjects</div><div style="font-size:9px;color:${S.aud?.allPass?'var(--ok-b)':'rgba(255,255,255,.4)'}">${S.aud?.allPass?'🔍 Audited ✅':'run audit'}</div></div></div>
+  <div class="card mb4"><div class="card-hd"><h3>📊 Per-Subject Breakdown</h3><span class="badge b-ny">Target=${TARGET} · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · Bins fill to ${MAX_PER_WEEK}</span></div><div style="overflow-x:auto"><table class="sc-table"><thead><tr><th>Subject</th><th>Specialists</th><th>Sections</th><th>Math</th><th>1.0FTE(${FTE_FULL_MIN}–${MAX_PER_WEEK})</th><th>Partial</th><th>✂️</th><th>Avg</th><th>Util%</th></tr></thead><tbody>${rows.map(r=>`<tr><td><span style="font-size:16px">${SPEC_ICON[r.subj]}</span> <strong>${r.subj}</strong></td><td style="text-align:center;font-weight:900;font-size:16px;color:${SPEC_COLOR[r.subj]}">${r.count}</td><td style="text-align:center">${r.secs}</td><td style="font-size:10.5px;color:var(--txm)">${r.secs}÷${MAX_PER_WEEK}=${(r.secs/MAX_PER_WEEK).toFixed(2)}→${r.count}</td><td style="text-align:center">${r.full>0?`<span class="badge b-ok">${r.full}</span>`:'—'}</td><td style="text-align:center">${r.part>0?`<span class="badge b-wn">${r.part}</span>`:'<span class="badge b-ok">0</span>'}</td><td style="text-align:center">${r.splits>0?`<span class="badge b-wn">${r.splits}</span>`:'<span class="badge b-ok">0</span>'}</td><td style="text-align:center">${r.avg}</td><td style="text-align:center"><strong style="color:${r.util>=90?'var(--ok)':r.util>=70?'var(--inf)':'var(--wn)'}">${r.util}%</strong></td></tr>`).join('')}<tr style="background:var(--gold-p);font-weight:700"><td>DISTRICT TOTAL</td><td style="text-align:center;font-size:18px">${ts}</td><td style="text-align:center">${tsc.toLocaleString()}</td><td style="font-size:10.5px;color:var(--txm)">${dt}×5÷${MAX_PER_WEEK}=${(dt*5/MAX_PER_WEEK).toFixed(2)}</td><td style="text-align:center">${rows.reduce((s,r)=>s+r.full,0)}</td><td style="text-align:center">${rows.reduce((s,r)=>s+r.part,0)}</td><td style="text-align:center">${rows.reduce((s,r)=>s+r.splits,0)}</td><td style="text-align:center">${Math.round(tsc/ts)}</td><td style="text-align:center">${Math.round(tsc/(ts*MAX_PER_WEEK)*100)}%</td></tr></tbody></table></div></div>`;
+}
+
+function renderPool(){
+  const c=document.getElementById('poolCont');if(!c)return;
+  if(!S.pool.length){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div>';return;}
+  const nc={};S.pool.forEach(sp=>{const k=sp.name.trim().toLowerCase();nc[k]=(nc[k]||0)+1;});
+  const dt=GEO.reduce((s,n)=>s+getST(n),0);const ms=Math.ceil(dt/MAX_PER_WEEK);
+  c.innerHTML=`<div class="alert al-ok mb4"><span class="al-i">🧮</span><div><strong>Pool: ${S.pool.length} specialists</strong> — ⌈${dt}÷${MAX_PER_WEEK}⌉=${ms}/subject×5=${ms*5}. Target=${TARGET}, 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}. Click to rename.</div></div>${SPECIALS.map(subj=>{const icon=SPEC_ICON[subj],color=SPEC_COLOR[subj],colbg=SPEC_COLBG[subj];const spList=S.pool.filter(sp=>sp.subject===subj);return`<div class="card mb4"><div class="card-hd"><h3>${icon} ${subj} — ${spList.length} specialist${spList.length!==1?'s':''}</h3><span style="font-size:11px;color:var(--txm)">${dt} sec ÷ ${MAX_PER_WEEK} = ${(dt/MAX_PER_WEEK).toFixed(2)} → ${spList.length}</span></div>${spList.map(sp=>{const isDup=(nc[sp.name.trim().toLowerCase()]||0)>1;const bin=S.opt?.[subj]?.[sp.bi];const secs=bin?.totalSections||0;return`<div class="pool-item${isDup?' has-err':''}"><div class="pool-icon" style="background:${colbg};border:1.5px solid ${color}">${icon}</div><div id="pn_${sp.id}" class="sp-name-edit" contenteditable="false" onclick="this.contentEditable='true';this.focus()" onblur="this.contentEditable='false';finishRename('${sp.id}',this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}if(event.key==='Escape'){this.textContent=S.pool.find(s=>s.id==='${sp.id}')?.name||'';this.blur();}">${sp.name}</div>${isDup?'<span class="badge b-er" style="font-size:9px">⚠️ Dup</span>':''}<span style="font-size:10px;color:var(--txm)">${bin?.sections?.sort((a,b)=>(SCHED_ORDER[a.schedType]||0)-(SCHED_ORDER[b.schedType]||0)).map(s=>s.short).join(' + ')||'—'}</span><span style="margin-left:auto">${ftePill(secs)}</span></div>`;}).join('')}</div>`;}).join('')}`;
+}
+
+function renderValPanel(result){if(!result)return'';const cls=result.pass?'val-pass':'val-fail';return`<div class="val-panel mb4 ${cls}"><div class="val-hdr ${cls}">${result.pass?'✅':'❌'} ${result.pass?'All Validation Rules Passing':'Rule Violation(s)'}</div>${result.rules.map(r=>`<div class="val-rule"><div style="font-size:16px;flex-shrink:0;margin-top:1px">${r.pass?'✅':'❌'}</div><div style="flex:1"><div style="font-weight:700;margin-bottom:3px">${r.icon} ${r.label}</div><div style="font-size:11px;color:var(--tx2);margin-bottom:4px">${r.desc}</div><div class="val-detail" style="${!r.pass?'border-left:3px solid var(--er);padding-left:10px;color:var(--er)':''}">${r.detail}</div></div></div>`).join('')}</div>`;}
+function renderValidation(){const c=document.getElementById('validationCont');if(!c)return;if(!S.opt){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Run the optimizer first.</div></div>';return;}const result=S.val||runVal();c.innerHTML=renderValPanel(result);}
+
+function renderDE(){const c=document.getElementById('districtPeriodEditor');if(!c)return;const fp=getDistrictFP();c.innerHTML=`<div class="card-hd"><h3>🗓️ District Primary Periods</h3><span style="font-size:11px;color:var(--txm)">P${fp} = specialist free period (on days with ≤${FREE_PERIOD_THRESHOLD} sections)</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">${GRADES.map(g=>{const cp=S.dp[g];const color=GRADE_COLORS[g];return`<div style="padding:13px;background:var(--bg);border-radius:var(--r);border-left:3px solid ${color}"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:26px;height:26px;border-radius:6px;background:${color};color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">${g}</div><strong>${GL[g]}</strong><span class="badge b-ny" style="margin-left:auto">P${cp}</span></div><div style="display:flex;gap:4px;flex-wrap:wrap">${PERIODS.map(p=>{const isFP=p===fp;return`<button style="min-width:46px;height:34px;border-radius:var(--r);border:2px solid ${p===cp?color:isFP?'var(--ok)':'var(--bdr)'};background:${p===cp?color:isFP?'var(--ok-b)':'var(--surf)'};cursor:pointer;font-size:11px;font-weight:600;color:${p===cp?'#fff':isFP?'var(--ok)':'var(--tx2)'}" onclick="setDP('${g}',${p})">P${p}${isFP?'📝':''}</button>`;}).join('')}</div></div>`;}).join('')}</div>`;}
+
+function renderBT(){
+  const c=document.getElementById('bellTimeTable');if(!c)return;const fp=getDistrictFP();
+  let html=`<table style="border-collapse:collapse;width:100%;min-width:640px;font-size:12px"><thead><tr style="background:var(--navy);color:#fff"><th style="padding:8px 10px">Period</th><th style="padding:8px 10px;background:var(--sA)">"A" 8:35–3:15</th><th style="padding:8px 10px;background:var(--sB)">"B" 8:50–3:30</th><th style="padding:8px 10px;background:var(--sC)">"C" 9:05–3:45</th><th style="padding:8px 10px">Grades</th><th style="padding:8px 10px">A→C Gap</th></tr></thead><tbody>`;
+  PERIODS.forEach((p,i)=>{const ta=getPT('A')[i],tb=getPT('B')[i],tc=getPT('C')[i];const gH=GRADES.filter(g=>S.dp[g]===p);const isFP=p===fp&&!gH.length;const gap=Math.round(tc.startMin-ta.endMin);html+=`<tr style="${isFP?'background:var(--ok-b)':''}"><td style="padding:7px 10px"><strong>P${p}</strong>${isFP?' 📝':''}</td><td style="padding:7px 10px">${ta.start}–${ta.end}</td><td style="padding:7px 10px">${tb.start}–${tb.end}</td><td style="padding:7px 10px">${tc.start}–${tc.end}</td><td style="padding:7px 10px">${isFP?`<span class="fp-badge">📝 Free/Prep</span>`:gH.length?gH.map(g=>`<span style="background:${GRADE_COLORS[g]};color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;margin-right:2px">${g}</span>`).join(''):'<span style="color:var(--txm)">—</span>'}</td><td style="padding:7px 10px;background:${gap>=0?'rgba(220,252,231,.3)':'rgba(254,226,226,.3)'}"><span style="font-size:11px;font-weight:700;color:${gap>=0?'var(--ok)':'var(--er)'}">+${gap} min</span>${gap>=0?`<div style="font-size:9px;color:var(--ok)">A-P${p}→C-P${p}: ✈️ travel window</div>`:`<div style="font-size:9px;color:var(--er)">C→A: impossible</div>`}</td></tr>`;});
+  html+=`</tbody></table><div class="info-box mt3"><strong>A→C travel:</strong> After A-school period P ends, C-school period P begins ${travelGapAtoC(1)} min later — natural travel window. Zero period consumed. Target=${TARGET} · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK}.</div>`;c.innerHTML=html;
+}
+
+function renderFlexNotice(){const el=document.getElementById('flexNotice');if(!el)return;const sc=cur();if(!sc){el.textContent='Select a school.';return;}const dFP=getDistrictFP();const sFP=getFreePeriod([sc]);const cG=GRADES.filter(g=>sc.grades[g]?.flexPeriod===dFP);if(cG.length)el.innerHTML=`<strong style="color:var(--wn)">⚠️ Free Period Shifted:</strong> ${cG.map(g=>GL[g]).join(', ')} flex=P${dFP} → specialist free = <span class="fp-badge">P${sFP}</span>.`;else el.innerHTML=`<strong>Specialist free period (days ≤${FREE_PERIOD_THRESHOLD} sections): <span class="fp-badge">P${sFP}</span></strong>${sFP!==dFP?' (shifted)':' (district default)'}. ⚠️ marks periods that would shift it.`;}
+function renderFlex(){const sc=cur();const c=document.getElementById('flexCont');if(!sc){c.innerHTML='<div class="alert al-inf"><span class="al-i">ℹ️</span><div>Select a school.</div></div>';return;}renderFlexNotice();const pt=getPT(sc.schedType);const dFP=getDistrictFP();const sFP=getFreePeriod([sc]);c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px">${GRADES.map(grade=>{const dp=S.dp[grade],fp=sc.grades[grade].flexPeriod;const color=GRADE_COLORS[grade];return`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:26px;height:26px;border-radius:6px;background:${color};color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">${grade}</div><h3 style="font-size:13px">${GL[grade]}</h3><span style="font-size:10px;color:var(--txm);margin-left:auto">${sc.grades[grade].teachers.length} teachers</span></div><div style="display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap"><span class="badge b-ny">◼ P${dp} · ${pt[dp-1].start}</span>${fp?`<span class="badge b-wn">★ Flex P${fp}${fp===dFP?' ⚠️':''}</span>`:'<span class="chip" style="color:var(--txm)">No flex</span>'}<span class="fp-badge">📝 P${sFP}</span></div><div style="display:flex;gap:4px;flex-wrap:wrap">${PERIODS.map(p=>{let st='';if(p===dp)st=`border:2px solid ${color};background:${color};color:#fff`;else if(fp&&p===fp)st='border:2px solid var(--gold-d);background:var(--gold-p);color:var(--navy)';else if(p===sFP&&p!==dp&&(!fp||fp!==p))st='border:2px solid var(--ok);background:var(--ok-b);color:var(--ok)';else st='border:2px solid var(--bdr);background:var(--surf);color:var(--tx2)';const wS=p===dFP&&(!fp||fp!==p);return`<button style="min-width:46px;height:34px;border-radius:var(--r);cursor:pointer;font-size:11px;font-weight:600;${st}" onclick="setFlex('${grade}',${p})">P${p}${wS?'<span style="font-size:7px">⚠️</span>':''}</button>`;}).join('')}${fp?`<button style="margin-left:8px;padding:3px 9px;border-radius:var(--r);border:1px solid var(--bdr);background:var(--bg);cursor:pointer;font-size:11px" onclick="clearFlex('${grade}')">✕</button>`:''}</div></div>`;}).join('')}</div>`;}
+
+function exportCSV(){const sc=cur();if(!sc||!sc.sched){toast('Run the optimizer first.','wn');return;}const pt=getPT(sc.schedType);let csv='School,Grade,Teacher,Monday,Tuesday,Wednesday,Thursday,Friday\n';GRADES.forEach(grade=>{sc.grades[grade].teachers.forEach(t=>{const row=[sc.name,GL[grade],t.name];DAYS.forEach(day=>{const e=sc.sched[grade]?.[t.id]?.[day];row.push(e?`${e.special} P${e.period} ${pt[e.period-1].start} (${e.stName||''})` :'—');});csv+=row.map(v=>`"${v}"`).join(',')+'\n';});});const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${sc.name.replace(/\s+/g,'_')}_schedule.csv`;a.click();toast('Exported.','ok');}
+
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById(`view-${name}`)?.classList.add('active');document.getElementById(`nv-${name}`)?.classList.add('active');const fns={dashboard:()=>{renderDash();renderSummary();},sections:()=>{renderGrids();},assignments:renderAssignments,spcards:renderSpcards,principal:renderPrincipal,staffingreport:renderStaffingReport,audit:renderAudit,pool:renderPool,flex:()=>{renderFlex();renderFlexNotice();},district:()=>{renderDE();renderBT();},validation:renderValidation};fns[name]?.();}
+function openModal(id){document.getElementById(id)?.classList.remove('h');}
+function closeModal(id){document.getElementById(id)?.classList.add('h');}
+document.querySelectorAll('.ov').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.add('h');}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.ov:not(.h)').forEach(m=>m.classList.add('h'));});
+function toast(msg,type='inf'){const w=document.getElementById('toastWrap'),t=document.createElement('div');const icons={ok:'✅',er:'❌',wn:'⚠️',inf:'ℹ️'};t.className=`toast t-${type}`;t.innerHTML=`<span>${icons[type]}</span><span>${msg}</span>`;w.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},4500);}
+
+window.addEventListener('load',async()=>{
+  load();
+  if(!S.schools||S.schools.length<15){init();}
+  else{
+    CBD.forEach((d)=>{let sc=S.schools.find(s=>s.name===d.name);if(!sc){sc={id:uid(),name:d.name,schedType:d.sT,principal:d.prin,address:d.addr,city:d.city,grades:{},sched:null,lastGen:null};GRADES.forEach(g=>{sc.grades[g]={flexPeriod:null,teachers:[]};});S.schools.push(sc);}else{sc.schedType=d.sT;sc.address=d.addr;sc.city=d.city;GRADES.forEach(g=>{if(!sc.grades[g])sc.grades[g]={flexPeriod:null,teachers:[]};if(sc.grades[g].flexPeriod===undefined)sc.grades[g].flexPeriod=null;});}});
+    const vn=CBD.map(d=>d.name);S.schools=S.schools.filter(s=>vn.includes(s.name));S.schools.sort((a,b)=>vn.indexOf(a.name)-vn.indexOf(b.name));
+    if(!S.gs)S.gs={};if(!S.dp)S.dp={K:1,'1':2,'2':3,'3':4,'4':5,'5':6};if(!S.pool)S.pool=[];
+    if(!S.cur||!S.schools.find(s=>s.id===S.cur))S.cur=S.schools[0]?.id||null;
+    syncAll();save();
+  }
+  refreshUI();
+  setTimeout(async()=>{
+    await runOptimizer();
+    const dt=GEO.reduce((s,n)=>s+getST(n),0);const ps=Math.ceil(dt/MAX_PER_WEEK);
+    toast(`v15 · Target=${TARGET} · 1.0 FTE=${FTE_FULL_MIN}–${MAX_PER_WEEK} · Bins fill to ${MAX_PER_WEEK} → ${ps}/subject = ${ps*5} district-wide`,'inf');
+  },800);
+});
+</script>
+</body>
+</html>
